@@ -111,12 +111,12 @@ As [Ethereun On Raspberry Pi](https://github.com/Web3-Pi/Ethereum-On-Raspberry-P
 A simple testing framework is implemented in this project, which can be used to interact with the service without paying gas fees. It allows triggering transactions by pressing keys from 1 to 6. Initially, the following requests are submitted to the RPC endpoint:
 
 ```
-1 - requestBalance
-2 - requestBlockNumber
-3 - requestBlock
-4 - requestContractRead
-5 - requestErc20TransferTxn - GLM
-6 - requestErc20TransferTxn - RandERC20
+1 - READ: requestBalance
+2 - READ: requestBlockNumber
+3 - READ: requestBlock
+4 - READ: requestContractRead
+5 - WRITE: requestErc20TransferTxn - GLM
+6 - WRITE: requestErc20TransferTxn - RandERC20
 ```
 
 
