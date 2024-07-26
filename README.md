@@ -1,6 +1,6 @@
 # Ethereum Transactions Firewall
 
-This simple tool is designed to increase interaction security with Ethereum. It should be used with the [Ethereun On Raspberry Pi](https://github.com/Web3-Pi/Ethereum-On-Raspberry-Pi) suite.
+This simple tool is designed to increase interaction security with Ethereum. It should be used with the [Ethereum On Raspberry Pi](https://github.com/Web3-Pi/Ethereum-On-Raspberry-Pi) suite.
 
 
 ## Setup
