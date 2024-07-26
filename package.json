@@ -1,0 +1,19 @@
+{
+  "name": "transactionfirewall",
+  "version": "1.0.0",
+  "description": "A simple POC service to let user accept/reject ehtereum transaction before it reaches RPC endpoint",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jimmysithis",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ethereumjs-util": "^7.1.5",
+    "express": "^4.19.2",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "web3": "^4.11.1"
+  }
+}

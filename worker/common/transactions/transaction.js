@@ -1,0 +1,34 @@
+class StubTransaction {
+    
+    constructor(from, to, value, data) {
+        this.from = from;
+        this.to = to;
+        this.value = value;
+        this.data = data;        
+    }
+
+    toString() {
+        return JSON.stringify(this);
+    }
+
+}
+
+class TransactionPayload {
+    constructor(id, labelFrom, labelTo, txn) {
+        this.id = id;
+        this.labelFrom = labelFrom;
+        this.labelTo = labelTo;
+        this.txn = txn;
+    }
+
+    toString() {
+        // return JSON.stringify({
+        //     'id': this.id,
+        //     'txn': this.txn
+        // });
+        return JSON.stringify(this);
+    }
+}
+
+exports.StubTransaction = StubTransaction;
+exports.TransactionPayload = TransactionPayload;

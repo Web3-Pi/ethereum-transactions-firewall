@@ -1,0 +1,212 @@
+body, html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    position:fixed;
+    background:
+            center / 90vh url(../img/shielded_logo.png) no-repeat,
+            radial-gradient(#1f0D36, #000000);
+    background-position: 42% -1vh;
+}
+
+/* Transaction approve/reject modal*/
+.modal-confirm {
+    color: #636363;
+    width: 450px;
+}
+.modal-confirm .modal-content {
+    padding: 15px;
+    border-radius: 5px;
+    border: none;
+    text-align: center;
+    font-size: 14px;
+}
+.modal-confirm .modal-header {
+    border-bottom: none;
+    position: relative;
+}
+.modal-confirm h4 {
+    text-align: center;
+    font-size: 18px;
+    margin: 30px 0 -10px;
+}
+.modal-confirm .btn-close {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+}
+.modal-confirm .modal-body {
+    color: #999;
+}
+.modal-confirm .modal-footer {
+    border: none;
+    text-align: center;
+    border-radius: 5px;
+    font-size: 13px;
+    padding: 10px 15px 15px;
+}
+.modal-confirm .modal-footer a {
+    color: #999;
+}
+.modal-confirm .icon-box {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto;
+    border-radius: 85%;
+    z-index: 9;
+    text-align: center;
+    border: 3px solid #f15e5e;
+    background-color: #000000;
+}
+.modal-confirm .icon-box img {
+    scale: 0.5;
+    position: relative;
+    top: -35px;
+    right: 35px;
+    opacity: 1.0;
+}
+.modal-confirm .btn, .modal-confirm .btn:active {
+    color: #fff;
+    border-radius: 4px;
+    background: #60c7c1;
+    text-decoration: none;
+    transition: all 0.4s;
+    line-height: normal;
+    min-width: 120px;
+    border: none;
+    min-height: 40px;
+    margin: 0 5px;
+}
+.modal-confirm .btn-secondary {
+    background: #c1c1c1;
+    margin-left: 115px;
+}
+.modal-confirm .btn-secondary:hover, .modal-confirm .btn-secondary:focus {
+    background: #a8a8a8;
+    margin-left: 115px;
+}
+.modal-confirm .btn-danger {
+    background: #016e2e;
+    margin-left: 15px;
+}
+.modal-confirm .btn-danger:hover, .modal-confirm .btn-danger:focus {
+    background: #016e2e;
+}
+.progress {
+    width: 83%;
+    margin-left: 8.5%;
+    margin-top: -15px;
+}
+
+/* Connection lost modal */
+.modal-err .modal-content {
+    padding: 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+}
+.modal-err .modal-header {
+    background: #e85e6c;
+    border-bottom: none;
+    position: relative;
+    text-align: center;
+    margin: -20px -20px 0;
+    border-radius: 5px 5px 0 0;
+    padding: 25px;
+}
+.modal-err h4 {
+    text-align: center;
+    font-size: 32px;
+    margin: 10px 0;
+}
+.modal-err .btn {
+    min-height: 40px;
+    border-radius: 3px;
+}
+.modal-err .icon-box {
+    color: #fff;
+    width: 95px;
+    height: 95px;
+    display: inline-block;
+    border-radius: 50%;
+    z-index: 9;
+    border: 5px solid #fff;
+    padding: 15px;
+    text-align: center;
+}
+.modal-err .icon-box i {
+    font-size: 58px;
+    margin: -2px 0 0 -2px;
+}
+.modal-err {
+    margin-top: 80px;
+}
+.modal-err .btn, .modal-err .btn:active {
+    color: #fff;
+    background: #c1c1c1 !important;
+    text-decoration: none;
+    transition: all 0.4s;
+    line-height: normal;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 6px 20px;
+    min-width: 150px;
+    border: none;
+}
+.modal-err .btn:hover, .modal-err .btn:focus {
+    background: #a8a8a8 !important;
+    outline: none;
+}
+
+/* Transaction status alerts */
+.alert {
+    position: relative;
+    margin-top: 5px;
+    width: 250px;
+}
+
+/* Transaction details table */
+.flat {
+    padding: 0.05rem .5rem .05rem 0.5rem !important;
+}
+.text-right{
+    text-align: right !important;
+}
+.text-left{
+    text-align: left !important;
+}
+.txn-head {
+    padding-top: 1rem;
+    padding-left: 0.5rem;
+    text-align: left;
+    font-size: medium;
+    margin-bottom: 0.2rem;
+    /*border: #6f42c1 2px solid;*/
+}
+.txn-text {
+    font-family: monospace;
+}
+.txn-label {
+    display: block;
+    margin-bottom: -2px;
+    text-align: left;
+    font-size: 10px;
+    color: #454545;
+}
+.data_display {
+    resize:none;
+    font-family: monospace;
+    /*white-space: pre;*/
+    font-size: 8pt;
+    /*background-color: #000000 !important;*/
+    /*color: #80FF80;*/
+}
+.hr-body {
+    margin-block-end: 0;
+}
+.hr-footer {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
