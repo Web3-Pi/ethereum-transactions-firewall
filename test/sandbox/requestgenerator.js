@@ -115,12 +115,12 @@ class DefaultTriggeredRequests {
         });
 
         console.log("Registered the following keyboard callbacks to generate web3 transactions");
-        console.log("1 - requestBalance");
-        console.log("2 - requestBlockNumber");
-        console.log("3 - requestBlock");
-        console.log("4 - requestContractRead");
-        console.log("5 - requestErc20TransferTxn - GLM");
-        console.log("6 - requestErc20TransferTxn - RandERC20");
+        console.log("1 - READ: requestBalance");
+        console.log("2 - READ: requestBlockNumber");
+        console.log("3 - READ: requestBlock");
+        console.log("4 - READ: requestContractRead");
+        console.log("5 - WRITE: requestErc20TransferTxn - GLM");
+        console.log("6 - WRITE: requestErc20TransferTxn - RandERC20");
     }
 
 }
