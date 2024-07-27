@@ -10,10 +10,17 @@ class UserSessionData {
 
         try {
             const data = readFileSync(authorized_addr_fn);
-            this.authAddresses = JSON.parse(data);    
+            const rawDir = JSON.parse(data);
+            Object.entries(rawDir).forEach(
+                ([key, value]) => {
+                    this.authAddresses[Web3.utils.toChecksumAddress(key)] = value;
+                }
+            );
         } catch (error) {
             console.log(`Error while reading file ${authorized_addr_fn} -> ${error}`);
-        }    
+        }
+
+        console.log(this.authAddresses);
     }
 
     getLabel(addr) {
