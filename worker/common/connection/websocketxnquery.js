@@ -11,16 +11,16 @@ const WebSocketServer = require('ws');
 
 class WebSocketTxnQuery {
 
-    constructor(wssPort) {
+    constructor(endpointUrl, wssPort) {
 
         console.log(`Websocket server is running on port: ${wssPort}`);
 
-        this.userSessionData = new UserSessionData();
+        this.userSessionData = new UserSessionData(endpointUrl);
 
         this.curTxnId = 0;
         this.webSocket = new BlockingWebSocket(null);
 
-        this.decoder = new RawTransactionDecoder();
+        this.decoder = new RawTransactionDecoder(this.userSessionData);
         this.wss = new WebSocketServer.Server({port: wssPort});
 
         this.wss.on("connection", (ws) => {

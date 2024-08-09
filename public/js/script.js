@@ -2,6 +2,7 @@ import {websocket_server_port} from "./config.js";
 import {ModalWindowError, ModalWindowTxnAcceptor, TxnAcceptorModalResult} from "./modal.js";
 import {TxnAcceptor} from "./transactions.js";
 
+
 // FIXME: handle inactive connections (implement heartbeats if necessary)
 export class TransactionsHandler {
     constructor(url) {
@@ -41,8 +42,10 @@ export class TransactionsHandler {
 
 class Main {
     static main() {
-        let wssHost = `ws://${window.location.hostname}:${websocket_server_port}`;
-        this.handler = new TransactionsHandler(wssHost);
+        $(document).ready( () => {
+            let wssHost = `ws://${window.location.hostname}:${websocket_server_port}`;
+            this.handler = new TransactionsHandler(wssHost);
+        });
     }
 }
 

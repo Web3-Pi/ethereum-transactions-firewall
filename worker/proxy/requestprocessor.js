@@ -6,7 +6,7 @@ class ValidatingRequestProcessor {
 
     constructor(endpointUrl, wssPort) {
         this.endpointUrl = endpointUrl;
-        this.txnValidator = new WebSocketTransactionValidator(wssPort);
+        this.txnValidator = new WebSocketTransactionValidator(endpointUrl, wssPort);
     }
 
     #logNewRequest(reqData) {

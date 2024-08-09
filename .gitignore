@@ -131,4 +131,6 @@ dist
 
 # app-specific
 .auth_addr
+.contract_abis
+.known_contracts
 package-lock.json

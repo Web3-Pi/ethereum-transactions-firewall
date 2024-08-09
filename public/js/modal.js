@@ -1,4 +1,6 @@
 import {accept_duration} from "./config.js";
+import {TransactionDetailsRenderer} from "./renderers.js";
+
 
 export class ModalWindowError {
     constructor() {
@@ -33,7 +35,7 @@ export class ModalWindowTxnAcceptor {
         this.toField = document.getElementById('link-to');
         this.toLabel = document.getElementById('to-label');
         this.valueField = document.getElementById('eth-val');
-        this.dataField = document.getElementById('data_display');
+        this.txnDetailsRenderer = new TransactionDetailsRenderer();
     }
 
     #animateProgress() {
@@ -84,27 +86,20 @@ export class ModalWindowTxnAcceptor {
     }
 
     #renderValue(value) {
-        this.valueField.textContent = (Number(BigInt(value)) / 1000000000000000000.0).toLocaleString() + " ETH";
+        this.valueField.textContent = (Number(BigInt(value)) / 1000000000000000000.0).toLocaleString('en-US', { useGrouping: true }) + " ETH";
     }
 
-    #renderData(data) {
-        let isDisabled = true;
-        let numRows = 0;
-
-        if (data.length > 0) {
-            isDisabled = false;
-            numRows = 4;
-        }
-
-        this.dataField.setAttribute('rows', numRows);
-        this.dataField.setAttribute('disabled', isDisabled);
-        this.dataField.textContent = data;
+    #renderTxnDetails(txn) {
+        this.txnDetailsRenderer.renderTxn(txn);
     }
 
     #renderTxnContents(labelFrom, labelTo, txn) {
         this.#renderAddrData(txn, labelFrom, labelTo);
         this.#renderValue(txn.value);
-        this.#renderData(txn.data);
+
+        this.#renderTxnDetails(txn);
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
     }
 
     #initRendering(txn, labelFrom, labelTo, id) {

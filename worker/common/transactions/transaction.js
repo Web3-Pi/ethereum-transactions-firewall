@@ -1,10 +1,11 @@
 class StubTransaction {
     
-    constructor(from, to, value, data) {
+    constructor(from, to, value, data, parsedData) {
         this.from = from;
         this.to = to;
         this.value = value;
-        this.data = data;        
+        this.data = data;
+        this.parsedData = parsedData;
     }
 
     toString() {
@@ -22,10 +23,6 @@ class TransactionPayload {
     }
 
     toString() {
-        // return JSON.stringify({
-        //     'id': this.id,
-        //     'txn': this.txn
-        // });
         return JSON.stringify(this);
     }
 }
