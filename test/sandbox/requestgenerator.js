@@ -1,4 +1,5 @@
 const request = require('request-promise');
+const { v4: uuidv4 } = require("uuid");
 const { Web3 } = require('web3');
 const { RawTransactionFactory } = require('./rawtxnfactory');
 const { KeyboardTriggerAsync } = require('./keyboardtrigger'); 
@@ -80,6 +81,21 @@ class RequestGenerator {
         });
         return resp;
     }
+
+    async requestRawTxnHTTP(rawTxn) {
+        const resp = request({ 
+            url: this.url,
+            method: 'POST',
+            json: 
+            {
+                jsonrpc: '2.0',
+                id: uuidv4(),
+                method: 'eth_sendRawTransaction',
+                params: [rawTxn]
+            },
+        });
+        return resp;
+    }
 }
 
 class DefaultTriggeredRequests {
@@ -109,18 +125,13 @@ class DefaultTriggeredRequests {
             const res = await this.requestGenerator.requestErc20TransferTxn('GLM');
             console.log(res);
         });
-        this.keyTrigger.addCallback('6', async () => {
-            const res = await this.requestGenerator.requestErc20TransferTxnHTTP();
-            console.log(res);
-        });
-
+        
         console.log("Registered the following keyboard callbacks to generate web3 transactions");
         console.log("1 - READ: requestBalance");
         console.log("2 - READ: requestBlockNumber");
         console.log("3 - READ: requestBlock");
         console.log("4 - READ: requestContractRead");
-        console.log("5 - WRITE: requestErc20TransferTxn - GLM");
-        console.log("6 - WRITE: requestErc20TransferTxn - RandERC20");
+        console.log("5 - WRITE: GLM transfer");
     }
 
 }

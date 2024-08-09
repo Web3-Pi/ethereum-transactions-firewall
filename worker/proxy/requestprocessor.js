@@ -1,21 +1,22 @@
 const WebSocketTransactionValidator = require('./transactionvalidator').WebSocketTransactionValidator;
 var request = require('request');
+const { currentDateStr } = require('../common/util/dateutil');
 
 
 class ValidatingRequestProcessor {
 
     constructor(endpointUrl, wssPort) {
         this.endpointUrl = endpointUrl;
-        this.txnValidator = new WebSocketTransactionValidator(wssPort);
+        this.txnValidator = new WebSocketTransactionValidator(endpointUrl, wssPort);
     }
 
     #logNewRequest(reqData) {
         let paramsStr = JSON.stringify(reqData.params);
-        if (paramsStr.length > 150) {
-            paramsStr = paramsStr.substring(0, 150) + ` ..."]`;
+        if (paramsStr.length > 150 - 19) {
+            paramsStr = paramsStr.substring(0, 150 - 19) + ` ..."]`;
         }
 
-        console.log(`New request: ${reqData.method} -> params : ${paramsStr}`);
+        console.log(`${currentDateStr()} New request: ${reqData.method} -> params : ${paramsStr}`);
     }
 
     defaultReponseSetter(res, response) {

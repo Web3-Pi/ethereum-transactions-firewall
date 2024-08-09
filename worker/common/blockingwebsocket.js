@@ -1,3 +1,6 @@
+const { currentDateStr } = require("./util/dateutil");
+
+
 class BlockingWebSocket {
 
     constructor(ws) {
@@ -13,7 +16,7 @@ class BlockingWebSocket {
 
     updateWebSocket(ws) {
         ws.cc = this.counter++;
-        console.log(`New websocket connection: ${ws.cc}`);
+        console.log(`${currentDateStr()} New websocket connection: ${ws.cc}`);
 
         if (this.ws != null) {
             // console.log(`Replacing connection: ${this.ws.cc}`);
@@ -33,7 +36,7 @@ class BlockingWebSocket {
         }
     
         ws.on("close", () => {
-            console.log(`Closing connection: ${ws.cc} - reason: connection closed`);
+            console.log(`${currentDateStr()} Closing connection: ${ws.cc} - reason: connection closed`);
             // console.log(`this cc ${this.ws.cc} vs ws cc ${ws.cc}`);
             if (this.cc == ws.cc) {
                 this.ws = null;
@@ -43,7 +46,7 @@ class BlockingWebSocket {
         })
 
         ws.onerror = () => {
-            console.log(`Closing connection: ${ws.cc} - reason: connection error`);
+            console.log(`${currentDateStr()} Closing connection: ${ws.cc} - reason: connection error`);
             // console.log(`this cc ${this.ws.cc} vs ws cc ${ws.cc}`);
             if (this.cc == ws.cc) {
                 this.ws = null;
