@@ -33,6 +33,22 @@ class ValidatingRequestProcessor {
         res.end(JSON.stringify(response.body));
     }
 
+    optionsReponseHandler(req, res) {
+        request.options({
+            url: this.endpointUrl,
+            headers: req.headers
+        },
+        (error, response, body) => {
+            res.statusCode = response.statusCode;
+            for (const header in response.headers) {
+                if (header.toLocaleLowerCase() !== 'content-length') {
+                    res.setHeader(header, response.headers[header]);
+                }
+            }
+            res.end();
+        });
+    }
+
     // FIXME: correct error code and error message should be returned here
     invalidResponseSetter(res, reqData) {
         res.writeHead(200, {'content-type': 'application/json'});
@@ -52,17 +68,22 @@ class ValidatingRequestProcessor {
         res.end(JSON.stringify(responseBody));
     }
 
-    validatingResponseHandler(data, res) {
+    validatingResponseHandler(data, req, res) {
         const reqData = JSON.parse(data);
         
         this.#logNewRequest(reqData);
 
+        const headers = {};
+        if (req.headers['origin'] !== undefined) {
+            headers['origin'] = req.headers['origin'];
+        }
         this.txnValidator.validateTransactionOnce(reqData,
             () => {
                 request({
                     url: this.endpointUrl,
                     method: 'POST',
                     json: reqData,
+                    headers: headers,
                 },
                 (error, response, body) => {
                     this.defaultReponseSetter(res, response);
@@ -82,8 +103,11 @@ class ValidatingRequestProcessor {
         req.on('end', () => {
             // console.log('New request');
             // console.log(JSON.parse(data));
-
-            this.validatingResponseHandler(data, res);
+            if (req.method == 'OPTIONS') {
+                this.optionsReponseHandler(req, res);
+            } else {
+                this.validatingResponseHandler(data, req, res);
+            }
         });
     }
 }
