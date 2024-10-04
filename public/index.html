@@ -11,15 +11,16 @@
 <body>
 
 <div class="container">
+
   <!-- Transaction Accept Modal HTML -->
   <div id="txnAcceptModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-confirm">
       <div class="modal-content">
         <div class="modal-header flex-column border-bottom-5 border-opacity-10">
           <div class="icon-box">
-            <img id="rberry" src="img/shielded_logo_small.png"/>
+            <img id="rberry" src="img/shielded_logo_small.png" alt=""/>
           </div>
-          <h4 id="txn-header-message" class="modal-title w-100">Do you want to accept transaction 020?</h4>
+          <h4 id="txn-header-message" class="modal-title w-100">Do you want to accept transaction 000?</h4>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -28,36 +29,31 @@
           </div>
           <hr class="hr-body">
           <p class="txn-head">Transaction details</p>
-          <table class="table table-borderless txn-table">
-            <tr>
-              <td class="text-left flat"><strong>From</strong></td>
-              <td class="text-right flat table-light">
-                <strong id="from-label" class="txn-label">Unknown</strong>
-                <a href="https://etherscan.io/address/0x7411fFC00B2ab50F89aa44E1A7948D19dfa96457" id="link-from" target="_blank" class="txn-text link-secondary link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">0x7411fFC00B2ab50F89aa44E1A7948D19dfa96457</a>
-              </td>
-            </tr>
-            <tr>
-              <td class="text-left flat"><strong>To</strong></td>
-              <td class="text-right flat table-light">
-                <strong id="to-label" class="txn-label">Unknown</strong>
-                <a href="https://etherscan.io/address/0xde9a9425b3ce28f66719ea606b1d1fdda210a94d" id="link-to" target="_blank" class="txn-text link-secondary link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">0xde9a9425b3ce28f66719ea606b1d1fdda210a94d</a>
-              </td>
-            </tr>
-            <tr>
-              <td class="text-left flat"><strong>Value</strong></td>
-              <td class="text-right flat table-light"><strong id="eth-val">1 ETH</strong></td>
-            </tr>
-            <tr>
-              <td class="text-left flat"><p></p></td>
-              <td class="text-right flat"></td>
-            </tr>
-            <tr>
-              <td class="text-left flat"><strong>Data</strong></td>
-              <td class="text-right flat">
-<!--                <label for="data_display" class="hidden"></label>-->
-                <textarea class="form-control data_display" rows="4" id="data_display" readonly></textarea>
-              </td>
-            </tr>
+          <table class="table table-borderless">
+            <tbody id="txnDetailsPlaceholder">
+              <tr>
+                <td class="text-left flat"><strong>From</strong></td>
+                <td class="text-right flat table-light">
+                  <strong id="from-label" class="txn-label">Unknown</strong>
+                  <a href="#" id="link-from" target="_blank" class="txn-text link-secondary link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"></a>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-left flat"><strong>To</strong></td>
+                <td class="text-right flat table-light">
+                  <strong id="to-label" class="txn-label">Unknown</strong>
+                  <a href="#" id="link-to" target="_blank" class="txn-text link-secondary link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"></a>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-left flat"><strong>Value</strong></td>
+                <td class="text-right flat table-light"><strong id="eth-val"></strong></td>
+              </tr>
+              <tr>
+                <td class="text-left flat"><p></p></td>
+                <td class="text-right flat"></td>
+              </tr>
+            </tbody>
           </table>
           <hr class="hr-footer">
         </div>

@@ -3,8 +3,8 @@ const { WebSocketTxnQuery } = require("../common/connection/websocketxnquery");
 
 class WebSocketTransactionValidator {
 
-    constructor(wssPort) {
-        this.wsc = new WebSocketTxnQuery(wssPort);
+    constructor(endpointUrl, wssPort) {
+        this.wsc = new WebSocketTxnQuery(endpointUrl, wssPort);
     }
 
     validateTransactionOnce(reqData, callbackAccepted, callbackRejected) {

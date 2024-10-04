@@ -7,20 +7,21 @@ const { UserSessionData } = require('../../session/usersessiondata');
 const { TransactionPayload } = require('../transactions/transaction');
 
 const WebSocketServer = require('ws');
+const { currentDateStr } = require('../util/dateutil');
 
 
 class WebSocketTxnQuery {
 
-    constructor(wssPort) {
+    constructor(endpointUrl, wssPort) {
 
-        console.log(`Websocket server is running on port: ${wssPort}`);
+        console.log(`${currentDateStr()}  Websocket server is running on port: ${wssPort}`);
 
-        this.userSessionData = new UserSessionData();
+        this.userSessionData = new UserSessionData(endpointUrl);
 
         this.curTxnId = 0;
         this.webSocket = new BlockingWebSocket(null);
 
-        this.decoder = new RawTransactionDecoder();
+        this.decoder = new RawTransactionDecoder(this.userSessionData);
         this.wss = new WebSocketServer.Server({port: wssPort});
 
         this.wss.on("connection", (ws) => {
@@ -38,10 +39,10 @@ class WebSocketTxnQuery {
 
     queryAcceptTransaction(rawTxn, callbackAccepted, callbackRejected) {
         if (!this.webSocket.isActive()){
-            console.log("Websocket not connected -> ACCEPTING current transaction");
+            console.log(`${currentDateStr()} Websocket not connected -> ACCEPTING current transaction`);
             callbackAccepted()
         } else if (this.webSocket.isBusy()) {
-            console.log("Websocket is busy processing a query -> ACCEPTING current transaction");
+            console.log(`${currentDateStr()} Websocket is busy processing a query -> ACCEPTING current transaction`);
             callbackAccepted()
         } else {
             const id = this.curTxnId++;

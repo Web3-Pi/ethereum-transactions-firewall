@@ -171,6 +171,9 @@ body {
 .flat {
     padding: 0.05rem .5rem .05rem 0.5rem !important;
 }
+.no-left-padding {
+    padding-left: 0 !important;
+}
 .text-right{
     text-align: right !important;
 }
@@ -195,6 +198,37 @@ body {
     font-size: 10px;
     color: #454545;
 }
+.txn-label-inner {
+    display: block;
+    margin-top: -4px;
+    margin-left: -2px;
+    text-align: left;
+    font-size: 8px;
+    color: #454545;
+}
+.td-decoded-txn {
+    font-size: 10px;
+    padding: 0 0 0 0 !important;
+    /*border: #6f42c1 1px solid;*/
+}
+.decoded-txn {
+    max-width: 335px;
+    padding: 0 0 0 0 !important;
+    /*border: #6f42c1 1px solid;*/
+}
+.td-decoded-txn th {
+    padding: 2px 2px 2px 2px;
+}
+.td-decoded-txn td {
+    padding: 2px 3px 2px 2px;
+}
+.call-descr {
+    font-size: 12px;
+    padding-left: 0;
+}
+.call-descr strong {
+    font-family: monospace;
+}
 .data_display {
     resize:none;
     font-family: monospace;
@@ -209,4 +243,19 @@ body {
 .hr-footer {
     margin-block-start: 0;
     margin-block-end: 0;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
 }

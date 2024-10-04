@@ -1,21 +1,22 @@
 const WebSocketTransactionValidator = require('./transactionvalidator').WebSocketTransactionValidator;
 var request = require('request');
+const { currentDateStr } = require('../common/util/dateutil');
 
 
 class ValidatingRequestProcessor {
 
     constructor(endpointUrl, wssPort) {
         this.endpointUrl = endpointUrl;
-        this.txnValidator = new WebSocketTransactionValidator(wssPort);
+        this.txnValidator = new WebSocketTransactionValidator(endpointUrl, wssPort);
     }
 
     #logNewRequest(reqData) {
         let paramsStr = JSON.stringify(reqData.params);
-        if (paramsStr.length > 150) {
-            paramsStr = paramsStr.substring(0, 150) + ` ..."]`;
+        if (paramsStr.length > 150 - 19) {
+            paramsStr = paramsStr.substring(0, 150 - 19) + ` ..."]`;
         }
 
-        console.log(`New request: ${reqData.method} -> params : ${paramsStr}`);
+        console.log(`${currentDateStr()} New request: ${reqData.method} -> params : ${paramsStr}`);
     }
 
     defaultReponseSetter(res, response) {
@@ -30,6 +31,22 @@ class ValidatingRequestProcessor {
         // console.log(JSON.stringify(response.body).length > 500 ? JSON.stringify(response.body).substring(0, 500) + "..." : response.body);
 
         res.end(JSON.stringify(response.body));
+    }
+
+    optionsReponseHandler(req, res) {
+        request.options({
+            url: this.endpointUrl,
+            headers: req.headers
+        },
+        (error, response, body) => {
+            res.statusCode = response.statusCode;
+            for (const header in response.headers) {
+                if (header.toLocaleLowerCase() !== 'content-length') {
+                    res.setHeader(header, response.headers[header]);
+                }
+            }
+            res.end();
+        });
     }
 
     // FIXME: correct error code and error message should be returned here
@@ -51,17 +68,22 @@ class ValidatingRequestProcessor {
         res.end(JSON.stringify(responseBody));
     }
 
-    validatingResponseHandler(data, res) {
+    validatingResponseHandler(data, req, res) {
         const reqData = JSON.parse(data);
         
         this.#logNewRequest(reqData);
 
+        const headers = {};
+        if (req.headers['origin'] !== undefined) {
+            headers['origin'] = req.headers['origin'];
+        }
         this.txnValidator.validateTransactionOnce(reqData,
             () => {
                 request({
                     url: this.endpointUrl,
                     method: 'POST',
                     json: reqData,
+                    headers: headers,
                 },
                 (error, response, body) => {
                     this.defaultReponseSetter(res, response);
@@ -81,8 +103,11 @@ class ValidatingRequestProcessor {
         req.on('end', () => {
             // console.log('New request');
             // console.log(JSON.parse(data));
-
-            this.validatingResponseHandler(data, res);
+            if (req.method == 'OPTIONS') {
+                this.optionsReponseHandler(req, res);
+            } else {
+                this.validatingResponseHandler(data, req, res);
+            }
         });
     }
 }
