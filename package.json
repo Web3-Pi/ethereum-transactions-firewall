@@ -1,10 +1,22 @@
 {
-  "name": "transactionfirewall",
-  "version": "1.0.0",
+  "name": "w3p-firewall",
+  "version": "0.1.0",
   "description": "A simple POC service to let user accept/reject ehtereum transaction before it reaches RPC endpoint",
   "main": "index.js",
+  "bin": "index.js",
+  "pkg": {
+    "targets": [
+      "node18-linux-arm64"
+    ],
+    "outputPath": "dist",
+    "assets": [
+      "public/**/*"
+    ]
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pkg .",
+    "build:deb": "npm run build & ./build-package.sh"
   },
   "author": "jimmysithis",
   "license": "MIT",
@@ -18,5 +30,8 @@
     "uuid": "^10.0.0",
     "web3": "^4.11.1",
     "xmlhttprequest": "^1.8.0"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
   }
 }

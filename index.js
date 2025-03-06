@@ -10,11 +10,11 @@ const { currentDateStr } = require('./worker/common/util/dateutil');
 function main() {
   const app = express();
 
-  app.use(express.static('public'));
+  app.use(express.static(path.join(__dirname, 'public')));
   app.get('/', function (req, res) {
       res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });
-  
+
   app.listen(server_port, () => {
     console.log();
     console.log(`${currentDateStr()} Transaction Firewall HTTP Server (to accept/reject transactions) is listening on port: ${server_port}`)
