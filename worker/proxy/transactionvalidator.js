@@ -14,6 +14,10 @@ class WebSocketTransactionValidator {
             this.wsc.queryAcceptTransaction(reqData.params[0], callbackAccepted, callbackRejected);
         }
     }
+
+    reload() {
+        this.wsc.reload()
+    }
 }
 
 exports.WebSocketTransactionValidator = WebSocketTransactionValidator;

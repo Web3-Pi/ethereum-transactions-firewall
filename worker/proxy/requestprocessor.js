@@ -52,7 +52,7 @@ class ValidatingRequestProcessor {
     // FIXME: correct error code and error message should be returned here
     invalidResponseSetter(res, reqData) {
         res.writeHead(200, {'content-type': 'application/json'});
-        const responseBody = 
+        const responseBody =
         {
             jsonrpc: '2.0',
             id: reqData.id,
@@ -70,7 +70,7 @@ class ValidatingRequestProcessor {
 
     validatingResponseHandler(data, req, res) {
         const reqData = JSON.parse(data);
-        
+
         this.#logNewRequest(reqData);
 
         const headers = {};
@@ -87,7 +87,7 @@ class ValidatingRequestProcessor {
                 },
                 (error, response, body) => {
                     this.defaultReponseSetter(res, response);
-                });    
+                });
             },
             () => {
                 this.invalidResponseSetter(res, reqData);
@@ -109,6 +109,10 @@ class ValidatingRequestProcessor {
                 this.validatingResponseHandler(data, req, res);
             }
         });
+    }
+
+    reload() {
+        this.txnValidator.reload();
     }
 }
 

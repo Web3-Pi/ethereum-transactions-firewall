@@ -1,5 +1,5 @@
 {
-  "name": "w3p-firewall",
+  "name": "w3p_tx_firewall",
   "version": "0.1.0",
   "description": "A simple POC service to let user accept/reject ehtereum transaction before it reaches RPC endpoint",
   "main": "index.js",

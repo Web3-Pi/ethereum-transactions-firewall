@@ -16,6 +16,7 @@ class WebSocketTxnQuery {
 
         console.log(`${currentDateStr()}  Websocket server is running on port: ${wssPort}`);
 
+        this.endpointUrl = endpointUrl;
         this.userSessionData = new UserSessionData(endpointUrl);
 
         this.curTxnId = 0;
@@ -52,8 +53,13 @@ class WebSocketTxnQuery {
                     assert(id == res.id);
                     res.status == 'accepted' ? callbackAccepted() : callbackRejected();
                 }
-            );    
+            );
         }
+    }
+
+    reload() {
+        this.userSessionData = new UserSessionData(this.endpointUrl);
+        console.log(`${currentDateStr()}  User session data reloaded`);
     }
 };
 

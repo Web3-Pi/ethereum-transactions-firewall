@@ -22,6 +22,10 @@ class ValidatingProxy {
             callback();
         });
     }
+
+    reload() {
+        this.requestProcessor.reload();
+    }
 }
 
 exports.ValidatingProxy = ValidatingProxy;
