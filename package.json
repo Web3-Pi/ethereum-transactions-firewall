@@ -1,38 +1,49 @@
 {
   "name": "w3p_tx_firewall",
-  "version": "0.1.0",
-  "description": "A simple POC service to let user accept/reject ehtereum transaction before it reaches RPC endpoint",
-  "main": "index.js",
-  "bin": "index.js",
-  "pkg": {
-    "targets": [
-      "node18-linux-arm64"
-    ],
-    "outputPath": "dist",
-    "assets": [
-      "public/**/*"
-    ]
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "pkg .",
-    "build:deb": "npm run build & ./build-package.sh"
-  },
-  "author": "jimmysithis",
+  "version": "0.2.0",
+  "description": "A simple POC service to let user accept/reject ethereum transaction before it reaches RPC endpoint",
+  "keywords": [
+    "web3pi",
+    "w3p",
+    "firewall",
+    "ethreum"
+  ],
+  "author": "mgordel",
   "license": "MIT",
-  "dependencies": {
-    "abi-decoder": "^2.4.0",
-    "dotenv": "^16.4.5",
-    "ethereumjs-util": "^7.1.5",
-    "express": "^4.19.2",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6",
-    "uuid": "^10.0.0",
-    "web3": "^4.11.1",
-    "xmlhttprequest": "^1.8.0"
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "prod": "npm run build && node dist/index.js",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "devDependencies": {
-    "dependency-cruiser": "^16.10.0",
-    "pkg": "^5.8.1"
+    "@eslint/js": "^9.23.0",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.14",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.0",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.5",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.28.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "uuid": "^11.1.0",
+    "web3": "^4.16.0",
+    "ws": "^8.18.1"
   }
 }
