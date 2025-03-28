@@ -26,8 +26,7 @@ The architecture of the system is shown in the diagram below.
 
 1. Rewrite the code to TypeScript and use the latest versions of libraries like Express, ws, and fetch instead of
    request.
-2. Consider reducing the complexity of the architecture by applying clean code principles and design
-   patterns.
+2. Consider reducing the complexity of the architecture.
 3. Refactor the frontend using the latest CSS frameworks, e.g., Tailwind and Shadcn.
 4. Support multiple WebSocket connections - implement queuing.
 5. Add application wrapping as a Linux application (deb) that installs itself as a system service
