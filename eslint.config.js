@@ -9,6 +9,14 @@ export default defineConfig([
   { files: ["**/*.ts"], plugins: { js }, extends: ["js/recommended"] },
   tseslint.configs.recommended,
   {
+    files: ["**/*.test.ts", "**/*.spec.ts", "src/__tests__/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
+  {
     ignores: [
       "node_modules",
       "dist",
