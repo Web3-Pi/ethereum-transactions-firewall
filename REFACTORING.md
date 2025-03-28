@@ -30,7 +30,7 @@ The architecture of the system is shown in the diagram below.
 3. Refactor the frontend using the latest CSS frameworks, e.g., Tailwind and Shadcn.
 4. Support multiple WebSocket connections - implement queuing.
 5. Add application wrapping as a Linux application (deb) that installs itself as a system service
-6. Added more tests unit / e2e
+6. Add more tests unit / e2e
 
 ## Features proposals
 
