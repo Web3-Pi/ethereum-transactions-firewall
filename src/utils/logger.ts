@@ -26,6 +26,8 @@ const config = isProduction ? prodConfig : devConfig;
 
 export const logger = pino.pino(config);
 
+export type Logger = pino.Logger;
+
 export function createLogger(module: string) {
   return logger.child({ module });
 }
