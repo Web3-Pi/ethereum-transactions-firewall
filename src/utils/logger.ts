@@ -24,10 +24,8 @@ const prodConfig = {
 const isProduction = process.env.NODE_ENV === "production";
 const config = isProduction ? prodConfig : devConfig;
 
-export const logger = pino.pino(config);
-
 export type Logger = pino.Logger;
 
-export function createLogger(module: string) {
-  return logger.child({ module });
+export function createLogger() {
+  return pino.pino(config);
 }

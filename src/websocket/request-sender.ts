@@ -6,19 +6,26 @@ export interface WebSocketServerConfig {
   logger: Logger;
 }
 
-export class WebsocketServer {
+export class WebSocketRequestSender {
   private wss: Wss;
+  private logger: Logger;
+
   constructor(config: WebSocketServerConfig) {
     this.wss = new Wss({ port: config.wssPort });
+    this.logger = config.logger;
   }
 
-  public async send<T>(message: string): Promise<T> {}
+  public async send<T>(message: string): Promise<T> {
+    this.logger.debug(`Sending message to websocket: ${message}`);
+    // TODO
+    return { result: false, error: "Rejected by user :)" } as T;
+  }
 
   public isBusy() {
     return false;
   }
 
   public isActive() {
-    return false;
+    return true;
   }
 }

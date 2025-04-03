@@ -3,16 +3,16 @@ import path from "path";
 import { createLogger } from "./utils/logger.js";
 import config from "./config/config.js";
 import { fileURLToPath } from "node:url";
-import { ValidatingProxy } from "./proxy/validating-proxy.js";
-import { WebsocketTransactionValidator } from "./proxy/transaction-validator.js";
-import { TransactionBuilder } from "./transactions/transaction-builder.js";
+import { ValidatingProxy } from "./proxy/proxy.js";
+import { WebsocketTransactionValidator } from "./proxy/validator.js";
+import { TransactionBuilder } from "./transactions/builder.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 class App {
   private app = express();
-  private logger = createLogger("w3p-tx-firewall");
+  private logger = createLogger();
 
   constructor() {
     this.setupMiddleware();
@@ -41,7 +41,7 @@ class App {
     });
     const transactionValidator = new WebsocketTransactionValidator({
       wssPort: config.wssPort,
-      logger: this.logger.child({ module: "validator" }),
+      logger: this.logger,
     });
     const proxy = new ValidatingProxy(
       transactionValidator,
@@ -49,7 +49,7 @@ class App {
       {
         proxyPort: config.proxyPort,
         endpointUrl: config.rpcEndpoint,
-        logger: this.logger.child({ module: "proxy" }),
+        logger: this.logger,
       },
     );
 

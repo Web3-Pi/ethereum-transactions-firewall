@@ -1,4 +1,4 @@
-name: Code Quality Check
+name: Base Check
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint-format-typecheck:
-    name: Lint, Format & Type Check
+    name: Lint, Format, Type Check & Unit Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -32,3 +32,6 @@ jobs:
 
       - name: Prettier Check
         run: npx prettier --check "src/**/*.ts"
+
+      - name: Unit Tests
+        run: npm run test

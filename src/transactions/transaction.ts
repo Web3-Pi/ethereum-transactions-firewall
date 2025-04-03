@@ -1,4 +1,4 @@
-import { Transaction, TypedTransaction } from "web3-eth-accounts";
+import { TypedTransaction } from "web3-eth-accounts";
 
 export interface UserData {
   labelFrom?: string;
@@ -6,27 +6,39 @@ export interface UserData {
   labelContract?: string;
 }
 
-export class UserTransaction extends Transaction {
+export interface TransactionPayload extends UserData {
+  from: string;
+  to?: string;
+  value: string;
+  contract: "TODO";
+}
+
+export class WrappedTransaction {
   constructor(
-    baseTransaction: TypedTransaction,
+    public baseTransaction: TypedTransaction,
     private userData: UserData,
-  ) {
-    super(baseTransaction, { freeze: false });
-  }
+  ) {}
 
-  get labelFrom() {
-    return this.userData.labelFrom;
-  }
-
-  get labelTo() {
-    return this.userData.labelTo;
-  }
-
-  get labelContract() {
-    return this.userData.labelContract;
+  get dto(): TransactionPayload {
+    return {
+      from: this.baseTransaction.getSenderAddress().toString(),
+      to: this.baseTransaction.to?.toString(),
+      value: this.baseTransaction.value.toString(),
+      ...this.userData,
+      contract: "TODO",
+    };
   }
 
   public toString(): string {
-    return JSON.stringify(this);
+    return JSON.stringify({
+      from:
+        this.baseTransaction.getSenderAddress() +
+        ` (${this.userData.labelFrom || "unknown"})`,
+      to:
+        this.baseTransaction.to?.toString() +
+        ` (${this.userData.labelTo || "unknown"})`,
+      value: this.baseTransaction.value.toString(),
+      contract: "TODO",
+    });
   }
 }

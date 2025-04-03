@@ -6,10 +6,9 @@ import {
   createServer,
   request,
 } from "http";
-import { TransactionValidator } from "./transaction-validator.js";
-import { TransactionBuilder } from "../transactions/transaction-builder.js";
+import { TransactionValidator } from "./validator.js";
+import { TransactionBuilder } from "../transactions/builder.js";
 import { JsonRpcRequest } from "web3";
-import { recoverTransaction, TxData } from "web3-eth-accounts";
 
 export interface ProxyConfig {
   proxyPort: number;
@@ -38,8 +37,12 @@ export class ValidatingProxy {
   public async listen(): Promise<void> {
     await this.transactionBuilder.loadConfig();
     this.server.listen(this.proxyPort, () => {
-      this.logger.info(`Proxy listening on port ${this.proxyPort}`);
+      this.logger.info(`Validating Proxy started on port: ${this.proxyPort}`);
     });
+  }
+
+  public async close(): Promise<void> {
+    this.server.close(() => this.logger.info(`Proxy closed`));
   }
 
   private processRequest(req: IncomingMessage, res: ServerResponse) {
@@ -48,30 +51,43 @@ export class ValidatingProxy {
       return;
     }
 
-    let body = "";
+    let body: string = "";
 
-    req.on("data", (chunk) => {
-      body += chunk;
-    });
+    req.on("data", (chunk) => (body += chunk));
 
     req.on("end", () => {
       const data: JsonRpcRequest | null = null;
       try {
         const jsonRpcReq = JSON.parse(body) as JsonRpcRequest;
-        const txData = this.getTxDataFromRequest(jsonRpcReq);
-        if (!txData) {
+        const transaction =
+          this.transactionBuilder.fromJsonRpcRequest(jsonRpcReq);
+        if (!transaction) {
           this.acceptRequest(jsonRpcReq, req, res);
           return;
         }
-        const transaction = this.transactionBuilder.fromTxData(txData);
-        this.logger.info(`Transaction received: ${transaction.toString()}`);
-        this.transactionValidator.validate(transaction).then(() => {
-          this.acceptRequest(data, req, res);
-          this.logger.info(`Transaction accepted. ${transaction.toString()}`);
-        });
+        this.logger.info(
+          { transaction: transaction.dto },
+          `Transaction received`,
+        );
+        this.transactionValidator
+          .validate(transaction)
+          .then(() => {
+            this.acceptRequest(data, req, res);
+            this.logger.info(
+              { transaction: transaction.dto },
+              `Transaction accepted`,
+            );
+          })
+          .catch((error) => {
+            this.rejectRequest(data, req, res, error);
+            this.logger.warn(
+              { transaction: transaction.dto, reason: error?.message },
+              `Transaction rejected`,
+            );
+          });
       } catch (error) {
-        this.rejectRequest(data, req, res);
-        this.logger.warn(error, `Transaction rejected.`);
+        this.rejectRequest(data, req, res, error as Error);
+        this.logger.error(error, `Something went wrong. Transaction rejected.`);
       }
     });
   }
@@ -81,9 +97,19 @@ export class ValidatingProxy {
     req: IncomingMessage,
     res: ServerResponse,
   ) {
+    const requestOptions = {
+      method: req.method,
+      headers: {
+        ...req.headers,
+        "Content-Type": "application/json",
+        "Content-Length": data ? JSON.stringify(data).length : 0,
+      },
+      timeout: 30000,
+    };
+
     const endpointReq = request(
       this.endpointUrl,
-      { method: req.method, headers: req.headers },
+      requestOptions,
       (endpointRes) => {
         res.statusCode = endpointRes.statusCode || 500;
         Object.entries(endpointRes.headers).forEach(([header, value]) => {
@@ -97,9 +123,15 @@ export class ValidatingProxy {
     );
 
     if (data) {
-      const requestData = JSON.stringify(data);
-      endpointReq.write(Buffer.from(requestData));
+      endpointReq.write(JSON.stringify(data));
     }
+
+    endpointReq.on("timeout", () => {
+      this.logger.error(`Request to ${this.endpointUrl} timed out`);
+      endpointReq.destroy();
+      res.statusCode = 504;
+      res.end("Request timed out");
+    });
 
     endpointReq.on("error", (error) => {
       this.logger.error(
@@ -107,7 +139,7 @@ export class ValidatingProxy {
         `Error occurred during request to endpoint: ${error}`,
       );
       res.statusCode = 500;
-      res.end();
+      res.end(error);
     });
 
     endpointReq.end();
@@ -117,6 +149,7 @@ export class ValidatingProxy {
     data: JsonRpcRequest | null,
     req: IncomingMessage,
     res: ServerResponse,
+    error?: Error,
   ) {
     res.writeHead(200, { "content-type": "application/json" });
 
@@ -124,23 +157,10 @@ export class ValidatingProxy {
       ...data,
       error: {
         code: -32000,
-        message:
-          "err: potential phishing attempt detected - reverting transaction",
+        message: `Error: potential phishing attempt detected - reverting transaction. ${error?.message || error}`,
       },
     };
 
     res.end(JSON.stringify(responseBody));
-  }
-
-  private getTxDataFromRequest(req: JsonRpcRequest): TxData | null {
-    if (req.method === "eth_sendTransaction") {
-      return (req.params?.[0] as TxData) ?? null;
-    } else if (req.method === "eth_sendRawTransaction") {
-      const rawTx = req.params?.[0]
-        ? recoverTransaction(req.params[0] as string)
-        : null;
-      return rawTx ? ({ data: rawTx } as TxData) : null;
-    }
-    return null;
   }
 }
