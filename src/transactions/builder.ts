@@ -42,14 +42,13 @@ export class TransactionBuilder {
 
       return new WrappedTransaction(baseTransaction, userData);
     } catch (error) {
-      console.error("Raw transaction data:", Buffer.from(data).toString("hex"));
-      console.error(error);
       throw new Error(`Failed to decode transaction. ${error}`);
     }
   }
 
   private getUserData(transaction: TypedTransaction): UserData {
     // TODO
+    console.log({ transaction });
     return {};
   }
 }
