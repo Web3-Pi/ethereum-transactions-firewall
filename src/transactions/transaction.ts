@@ -1,16 +1,19 @@
 import { TypedTransaction } from "web3-eth-accounts";
 
+export interface ContractInfo {
+  TODO: true;
+}
+
 export interface UserData {
   labelFrom?: string;
   labelTo?: string;
-  labelContract?: string;
+  contractInfo?: ContractInfo;
 }
 
 export interface TransactionPayload extends UserData {
   from: string;
   to?: string;
   value: string;
-  contract: "TODO";
 }
 
 export class WrappedTransaction {
@@ -25,7 +28,6 @@ export class WrappedTransaction {
       to: this.baseTransaction.to?.toString(),
       value: this.baseTransaction.value.toString(),
       ...this.userData,
-      contract: "TODO",
     };
   }
 
@@ -38,7 +40,6 @@ export class WrappedTransaction {
         this.baseTransaction.to?.toString() +
         ` (${this.userData.labelTo || "unknown"})`,
       value: this.baseTransaction.value.toString(),
-      contract: "TODO",
     });
   }
 }

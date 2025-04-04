@@ -22,7 +22,7 @@ describe("Proxy", () => {
 
   let proxy: ValidatingProxy;
 
-  const transactionRequest = async (method = "POST") =>
+  const rpcRequest = async (method = "POST") =>
     fetch(`http://localhost:${configMock.proxyPort}`, {
       method,
       headers: { "Content-Type": "application/json", Connection: "close" },
@@ -58,7 +58,7 @@ describe("Proxy", () => {
       null,
     );
     when(transactionValidatorMock.validate(anything())).thenResolve(true);
-    const response = await transactionRequest();
+    const response = await rpcRequest();
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data).toHaveProperty("result", "0xSuccess");
@@ -69,7 +69,7 @@ describe("Proxy", () => {
       transactionMock,
     );
     when(transactionValidatorMock.validate(anything())).thenResolve(true);
-    const response = await transactionRequest();
+    const response = await rpcRequest();
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data).toEqual({
@@ -87,7 +87,7 @@ describe("Proxy", () => {
       new ValidationError("Rejected by user"),
     );
 
-    const response = await transactionRequest();
+    const response = await rpcRequest();
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data).toEqual({
@@ -104,7 +104,7 @@ describe("Proxy", () => {
       new Error("Invalid transaction decoding"),
     );
     when(transactionValidatorMock.validate(anything())).thenResolve(true);
-    const response = await transactionRequest();
+    const response = await rpcRequest();
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data).toEqual({
@@ -118,7 +118,7 @@ describe("Proxy", () => {
 
   test("should forward the request if it is of type OPTIONS", async () => {
     nock(configMock.endpointUrl).options("/").reply(200);
-    const response = await transactionRequest("OPTIONS");
+    const response = await rpcRequest("OPTIONS");
     expect(response.status).toBe(200);
   });
 });

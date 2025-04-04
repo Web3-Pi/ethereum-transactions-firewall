@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { ValidatingProxy } from "./proxy/proxy.js";
 import { WebsocketTransactionValidator } from "./proxy/validator.js";
 import { TransactionBuilder } from "./transactions/builder.js";
+import { ContractParser } from "./transactions/parser.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,12 +22,12 @@ class App {
   }
 
   private setupMiddleware(): void {
-    const publicDir = path.join(__dirname, "public");
+    const publicDir = path.join(__dirname, "../public");
     this.app.use(express.static(publicDir));
   }
 
   private setupRoutes(): void {
-    const publicDir = path.join(__dirname, "public");
+    const publicDir = path.join(__dirname, "../public");
 
     this.app.get("/", (req, res) => {
       res.sendFile(path.join(publicDir, "index.html"));
@@ -34,7 +35,8 @@ class App {
   }
 
   private startServices(): void {
-    const transactionBuilder = new TransactionBuilder({
+    const contractParser = new ContractParser();
+    const transactionBuilder = new TransactionBuilder(contractParser, {
       authorizedAddressesPath: config.authorizedAddressesPath,
       knownContractsPath: config.knownContractsPath,
       knownContractAbisPath: config.knownContractAbisPath,
