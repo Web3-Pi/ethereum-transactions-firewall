@@ -4,7 +4,9 @@ const config = {
   moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.jsx?$": "$1",
+    "node-fetch": "<rootDir>/node_modules/node-fetch-jest",
   },
+
   transform: {
     "^.+\\.tsx?$": [
       "@swc/jest",

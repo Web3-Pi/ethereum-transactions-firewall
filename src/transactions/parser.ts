@@ -16,6 +16,7 @@ export class ContractParser {
       config.knownContractAbis.map((key) => [key, key]),
     );
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public getContractInfo(transaction: TypedTransaction): ContractInfo {
     return {} as ContractInfo;
   }
