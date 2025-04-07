@@ -51,7 +51,7 @@ export class WebSocketRequestSender {
 
   private handleDisconnection(reason: string) {
     this.logger.warn(
-      `Closing connection: ${this.activeConnectionId} - reason: ${reason}`,
+      `Closing connection: ${this.activeConnectionId}. Reason: ${reason}`,
     );
     if (this.activeConnectionId === this.connectionCounter - 1) {
       this.ws = null;
@@ -67,7 +67,7 @@ export class WebSocketRequestSender {
     return this.ws !== null;
   }
 
-  public async send<T>(data: string, timeoutMs: number = 5000): Promise<T> {
+  public async send<T>(data: string, timeoutMs: number = 25000): Promise<T> {
     if (!this.ws) {
       throw new Error("WebSocket is not connected");
     }
@@ -87,9 +87,9 @@ export class WebSocketRequestSender {
           return reject(err);
         }
 
-        const handleMessage = (msg: { data: string }) => {
+        const handleMessage = (msg: string) => {
           clearTimeout(timeout);
-          resolve(JSON.parse(msg.data) as T);
+          resolve(JSON.parse(msg) as T);
           this.ws!.off("message", handleMessage);
         };
 

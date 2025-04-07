@@ -8,8 +8,10 @@ export abstract class TransactionValidator {
 // In the future we can implement Non-Interactive Whitelist / Blacklist Validator
 
 export type WebsocketResponse = {
+  id: string;
+  timestamp: number;
   result: boolean;
-  error?: string;
+  message?: string;
 };
 
 export interface WebsocketTransactionValidatorConfig {
@@ -51,9 +53,14 @@ export class WebsocketTransactionValidator extends TransactionValidator {
         `Unable to validate transaction by user -> ACCEPTING`,
       );
     }
+    if (response && response.id !== tx.id) {
+      throw new Error(
+        "Invalid transaction response from websocket. Tx id mismatch.",
+      );
+    }
     if (response?.result === false) {
       throw new ValidationError(
-        `Transaction validation failed. ${response?.error || ""}`,
+        `Transaction validation failed. ${response?.message || ""}`,
       );
     }
 
