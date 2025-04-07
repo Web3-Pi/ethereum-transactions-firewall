@@ -74,14 +74,14 @@ export class ValidatingProxy {
             );
           })
           .catch((error) => {
-            this.rejectRequest(rpcReq, res, error);
+            this.rejectRequest(res, error);
             this.logger.warn(
               { transaction: transaction.dto, reason: error?.message },
               `Transaction rejected`,
             );
           });
       } catch (error) {
-        this.rejectRequest(rpcReq, res, error as Error);
+        this.rejectRequest(res, error as Error);
         this.logger.error(error, `Something went wrong. Transaction rejected.`);
       }
     });
@@ -118,11 +118,7 @@ export class ValidatingProxy {
     }
   }
 
-  private rejectRequest(
-    data: JsonRpcRequest | null,
-    res: ServerResponse,
-    error?: Error,
-  ) {
+  private rejectRequest(res: ServerResponse, error?: Error) {
     res.writeHead(200, { "content-type": "application/json" });
 
     const responseBody = {

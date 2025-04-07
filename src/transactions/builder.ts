@@ -4,6 +4,7 @@ import { TransactionFactory, TypedTransaction } from "web3-eth-accounts";
 import { JsonRpcRequest } from "web3";
 import { toBuffer } from "ethereumjs-util";
 import { ContractParser } from "./parser.js";
+import * as fs from "node:fs";
 
 export interface TransactionBuilderConfig {
   authorizedAddressesPath: string;
@@ -22,15 +23,27 @@ export class TransactionBuilder {
   ) {}
 
   public async loadConfig() {
-    // TODO: read from fs
-    const authorizedAddresses: string[] = [];
-    this.authorizedAddresses = new Map(
-      authorizedAddresses.map((key) => [key, key]),
-    );
-    const knownContracts: string[] = [];
-    const knownContractAbis: string[] = [];
-    this.contractParser.loadConfig({ knownContracts, knownContractAbis });
-    this.isLoaded = true;
+    try {
+      const authorizedAddresses: string[] = JSON.parse(
+        await fs.promises.readFile(
+          this.config.authorizedAddressesPath,
+          "utf-8",
+        ),
+      );
+      const knownContracts: string[] = JSON.parse(
+        await fs.promises.readFile(this.config.knownContractsPath, "utf-8"),
+      );
+      const knownContractAbis: string[] = JSON.parse(
+        await fs.promises.readFile(this.config.knownContractAbisPath, "utf-8"),
+      );
+      this.authorizedAddresses = new Map(
+        authorizedAddresses.map((key) => [key, key]),
+      );
+      this.isLoaded = true;
+      this.contractParser.loadConfig({ knownContracts, knownContractAbis });
+    } catch (error) {
+      throw new Error(`Failed to load config. ${error}`);
+    }
   }
 
   public fromJsonRpcRequest(req: JsonRpcRequest): WrappedTransaction | null {
