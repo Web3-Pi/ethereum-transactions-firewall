@@ -1,8 +1,12 @@
-import { UserData, WrappedTransaction } from "./transaction.js";
+import {
+  TransactionType,
+  ParsedData,
+  WrappedTransaction,
+} from "./transaction.js";
 import assert from "node:assert";
 import { TransactionFactory, TypedTransaction } from "web3-eth-accounts";
 import { JsonRpcRequest } from "web3";
-import { toBuffer } from "ethereumjs-util";
+import { bufferToHex, isZeroAddress, toBuffer } from "ethereumjs-util";
 import { ContractParser } from "./parser.js";
 import * as fs from "node:fs";
 
@@ -16,6 +20,7 @@ export class TransactionBuilder {
   private isLoaded = false;
 
   private authorizedAddresses = new Map<string, string>();
+  private knownContracts = new Map<string, string>();
 
   constructor(
     private contractParser: ContractParser,
@@ -24,23 +29,47 @@ export class TransactionBuilder {
 
   public async loadConfig() {
     try {
-      const authorizedAddresses: string[] = JSON.parse(
-        await fs.promises.readFile(
-          this.config.authorizedAddressesPath,
-          "utf-8",
+      const authorizedAddresses: [string, string][] = Object.entries(
+        JSON.parse(
+          await fs.promises.readFile(
+            this.config.authorizedAddressesPath,
+            "utf-8",
+          ),
         ),
       );
-      const knownContracts: string[] = JSON.parse(
-        await fs.promises.readFile(this.config.knownContractsPath, "utf-8"),
+      const knownContracts: [string, string][] = Object.entries(
+        JSON.parse(
+          await fs.promises.readFile(this.config.knownContractsPath, "utf-8"),
+        ),
       );
-      const knownContractAbis: string[] = JSON.parse(
-        await fs.promises.readFile(this.config.knownContractAbisPath, "utf-8"),
+      const knownContractAbis: [string, string][] = Object.entries(
+        JSON.parse(
+          await fs.promises.readFile(
+            this.config.knownContractAbisPath,
+            "utf-8",
+          ),
+        ),
       );
       this.authorizedAddresses = new Map(
-        authorizedAddresses.map((key) => [key, key]),
+        authorizedAddresses.map(([address, name]) => [
+          address.toLowerCase(),
+          name,
+        ]),
+      );
+      this.knownContracts = new Map(
+        knownContracts.map(([address, name]) => [address.toLowerCase(), name]),
       );
       this.isLoaded = true;
-      this.contractParser.loadConfig({ knownContracts, knownContractAbis });
+      this.contractParser.loadConfig(
+        this.authorizedAddresses,
+        this.knownContracts,
+        new Map(
+          knownContractAbis.map(([address, abi]) => [
+            address.toLowerCase(),
+            JSON.parse(abi),
+          ]),
+        ),
+      );
     } catch (error) {
       throw new Error(`Failed to load config. ${error}`);
     }
@@ -63,7 +92,12 @@ export class TransactionBuilder {
     }
   }
 
-  private getUserData(transaction: TypedTransaction): UserData {
+  private getUserData(transaction: TypedTransaction): ParsedData {
+    const txType = this.getTransactionType(transaction);
+    const contractInfo =
+      txType !== "transfer"
+        ? this.contractParser.getContractInfo(transaction, txType) || undefined
+        : undefined;
     return {
       labelFrom:
         this.authorizedAddresses.get(
@@ -71,8 +105,39 @@ export class TransactionBuilder {
         ) || "unknown",
       labelTo:
         this.authorizedAddresses.get(transaction.to?.toString() || "") ||
+        this.knownContracts.get(transaction.to?.toString() || "") ||
         "unknown",
-      contractInfo: this.contractParser.getContractInfo(transaction),
+      txType,
+      contractInfo,
     };
+  }
+
+  private getTransactionType(transaction: TypedTransaction): TransactionType {
+    if (
+      (!transaction.to || isZeroAddress(transaction.to.toString())) &&
+      transaction.data &&
+      !isZeroAddress(transaction.data.toString())
+    ) {
+      return "contract-creation";
+    }
+    if (
+      transaction.to &&
+      !isZeroAddress(transaction.to.toString()) &&
+      (!transaction.data ||
+        transaction.data.toString() === "0x" ||
+        bufferToHex(Buffer.from(transaction.data)) === "0x")
+    ) {
+      return "transfer";
+    }
+    if (
+      transaction.to &&
+      !isZeroAddress(transaction.to.toString()) &&
+      transaction.data &&
+      !isZeroAddress(transaction.data.toString())
+    ) {
+      return "contract-call";
+    }
+
+    return "unknown";
   }
 }

@@ -22,12 +22,12 @@ class App {
   }
 
   private setupMiddleware(): void {
-    const publicDir = path.join(__dirname, "../public");
+    const publicDir = path.join(__dirname, "../frontend/dist");
     this.app.use(express.static(publicDir));
   }
 
   private setupRoutes(): void {
-    const publicDir = path.join(__dirname, "../public");
+    const publicDir = path.join(__dirname, "../frontend/dist");
 
     this.app.get("/", (req, res) => {
       res.sendFile(path.join(publicDir, "index.html"));

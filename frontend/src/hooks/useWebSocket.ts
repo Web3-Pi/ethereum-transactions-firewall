@@ -6,6 +6,26 @@ export type WebSocketStatus =
   | "disconnected"
   | "error";
 
+export interface ContractArg {
+  name: string;
+  type: string;
+  value: string;
+  label?: string;
+}
+
+export interface ContractInfo {
+  address: string;
+  labelAddress?: string;
+  functionName: string;
+  args?: ContractArg[];
+}
+export type TransactionType =
+  | "transfer"
+  | "erc-20-transfer"
+  | "contract-creation"
+  | "contract-call"
+  | "unknown";
+
 export interface TransactionPayload {
   id: string;
   from: string;
@@ -13,18 +33,9 @@ export interface TransactionPayload {
   to: string;
   labelTo?: string;
   value: string;
-  txType:
-    | "transfer"
-    | "erc-20-transfer"
-    | "contract-creation"
-    | "contract-call";
+  txType: TransactionType;
   data: string;
-  contractInfo?: {
-    address: string;
-    labelAddress?: string;
-    functionName: string;
-    args?: string[];
-  };
+  contractInfo?: ContractInfo;
 }
 
 export interface UserDecision {

@@ -15,12 +15,13 @@ import { useEffect, useState } from "react";
 import { TransactionPayload } from "@/hooks/useWebSocket";
 import smallLogo from "/src/assets/shielded_logo_small.png";
 import { CheckCircle, XCircle } from "lucide-react";
+import React from "react";
 
 export function TransactionDialog({
   transactionPayload,
   onAccept,
   onReject,
-  timeout = 10000,
+  timeout = 30000,
 }: {
   transactionPayload: TransactionPayload;
   onAccept: () => void;
@@ -50,8 +51,31 @@ export function TransactionDialog({
     };
   }, [onReject, timeout]);
 
+  const formatArgValue = (arg: {
+    value: string;
+    type: string;
+    label?: string;
+  }) => {
+    if (arg.value === null) return "Unknown";
+    if (arg.type === "uint256")
+      return (parseFloat(arg.value) / 1e18).toFixed(6);
+    if (arg.type === "address" && arg.label)
+      return (
+        <>
+          <b>{arg.label}</b>
+          <br />
+          {formatAddressAsLink(arg.value)}
+        </>
+      );
+    return arg.value;
+  };
+
+  const formatAddressAsLink = (address: string) => {
+    return <a href={`https://etherscan.io/address/${address}`}>{address}</a>;
+  };
+
   return (
-    <Card className="shadow-lg p-10 m-2 min-w-[700px] max-w-[800px]">
+    <Card className="shadow-lg p-10 m-2 min-w-[800px] max-w-[900px]">
       <CardHeader className="flex flex-col items-center">
         <img
           src={smallLogo}
@@ -73,26 +97,32 @@ export function TransactionDialog({
         </CardTitle>
       </CardHeader>
       <CardContent className="mt-4 w-full text-left">
-        <p className="text-lg font-semibold mb-6">Transaction details</p>
-        <div className="grid grid-cols-[20%_80%] gap-y-2 text-base">
+        <p className="text-lg font-semibold mb-6 border-b pb-2">
+          Transaction details
+        </p>
+        <div className="grid grid-cols-[25%_75%] gap-y-2 text-base">
           <div className="font-semibold">From:</div>
           <div>
             <b>{transactionPayload.labelFrom || "Unknown"}</b>
             <br />
-            {transactionPayload.from}
+            {formatAddressAsLink(transactionPayload.from)}
           </div>
           <div className="font-semibold">To:</div>
           <div>
             <b>{transactionPayload.labelTo || "Unknown"}</b>
             <br />
-            {transactionPayload.to}
+            {formatAddressAsLink(transactionPayload.to)}
           </div>
           <div className="font-semibold">Value:</div>
           <div>
             <b>{(parseFloat(transactionPayload.value) / 1e18).toFixed(6)}</b>{" "}
             ETH
           </div>
-          <p className="col-span-2 text-lg font-semibold mt-6 mb-2">Data</p>
+          {transactionPayload.txType !== "transfer" && (
+            <p className="col-span-2 text-lg font-semibold mt-6 mb-6 border-b">
+              Data
+            </p>
+          )}
 
           {transactionPayload.contractInfo &&
           Object.keys(transactionPayload.contractInfo).length > 0 ? (
@@ -103,20 +133,38 @@ export function TransactionDialog({
                   {transactionPayload.contractInfo.labelAddress || "Unknown"}
                 </b>
                 <br />
-                {transactionPayload.contractInfo.address}
+                {formatAddressAsLink(transactionPayload.contractInfo.address)}
               </div>
               <div className="font-semibold">Function:</div>
-              <div>
+              <div className="font-semibold">
                 {transactionPayload.contractInfo.functionName
                   ? transactionPayload.contractInfo.functionName
                   : "Unknown"}
               </div>
+              {transactionPayload.contractInfo.args &&
+                transactionPayload.contractInfo.args.length > 0 && (
+                  <>
+                    <div className="font-semibold">Arguments:</div>
+                    <div className="grid grid-cols-[18%_82%] gap-y-2">
+                      {transactionPayload.contractInfo.args.map(
+                        (arg, index) => (
+                          <React.Fragment key={index}>
+                            <div className="font-semibold">{arg.name}:</div>
+                            <div>{formatArgValue(arg)}</div>
+                          </React.Fragment>
+                        ),
+                      )}
+                    </div>
+                  </>
+                )}
             </>
           ) : (
-            <>
-              <div></div>
-              <div className="break-all">{transactionPayload.data}</div>
-            </>
+            transactionPayload.txType !== "transfer" && (
+              <>
+                <div></div>
+                <div className="break-all">{transactionPayload.data}</div>
+              </>
+            )
           )}
         </div>
       </CardContent>
