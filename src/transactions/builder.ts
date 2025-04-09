@@ -41,13 +41,15 @@ export class TransactionBuilder {
           await fs.promises.readFile(this.config.knownContractsPath, "utf-8"),
         ),
       );
-      const knownContractAbis: [string, string][] = Object.entries(
+      const knownContractAbis: string[][] = Object.entries(
         JSON.parse(
           await fs.promises.readFile(
             this.config.knownContractAbisPath,
             "utf-8",
           ),
         ),
+      ).flatMap(([name, abis]) =>
+        (abis as object[]).map((abi) => [name, JSON.stringify(abi)]),
       );
       this.authorizedAddresses = new Map(
         authorizedAddresses.map(([address, name]) => [
