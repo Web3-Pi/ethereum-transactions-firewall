@@ -169,7 +169,7 @@ export function TransactionDialog({
         </div>
       </CardContent>
       <CardFooter className="flex flex-col items-center gap-4 mt-6">
-        <div className="w-full rounded-full h-2">
+        <div className="w-full rounded-full h-2 bg-primary">
           <div
             className="bg-secondary h-2 rounded-full"
             style={{ width: `${progress}%` }}

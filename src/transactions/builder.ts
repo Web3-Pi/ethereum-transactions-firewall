@@ -1,14 +1,12 @@
-import {
-  TransactionType,
-  ParsedData,
-  WrappedTransaction,
-} from "./transaction.js";
+import { ParsedData, WrappedTransaction } from "./transaction.js";
 import assert from "node:assert";
 import { TransactionFactory, TypedTransaction } from "web3-eth-accounts";
 import { JsonRpcRequest } from "web3";
-import { bufferToHex, isZeroAddress, toBuffer } from "ethereumjs-util";
+import { toBuffer } from "ethereumjs-util";
 import { ContractParser } from "./parser.js";
 import * as fs from "node:fs";
+import { getTransactionType } from "../utils/transaction.js";
+import { Logger } from "../utils/logger.js";
 
 export interface TransactionBuilderConfig {
   authorizedAddressesPath: string;
@@ -25,6 +23,7 @@ export class TransactionBuilder {
   constructor(
     private contractParser: ContractParser,
     private config: TransactionBuilderConfig,
+    private logger: Logger,
   ) {}
 
   public async loadConfig() {
@@ -59,7 +58,6 @@ export class TransactionBuilder {
       this.knownContracts = new Map(
         knownContracts.map(([address, name]) => [address.toLowerCase(), name]),
       );
-      this.isLoaded = true;
       this.contractParser.loadConfig(
         this.authorizedAddresses,
         this.knownContracts,
@@ -70,6 +68,10 @@ export class TransactionBuilder {
           ]),
         ),
       );
+      if (this.isLoaded) {
+        this.logger.info("Configuration files reloaded");
+      }
+      this.isLoaded = true;
     } catch (error) {
       throw new Error(`Failed to load config. ${error}`);
     }
@@ -84,16 +86,16 @@ export class TransactionBuilder {
     try {
       const txData = toBuffer(req.params[0] as string);
       const baseTransaction = TransactionFactory.fromSerializedData(txData);
-      const userData = this.getUserData(baseTransaction);
+      const parsedData = this.getParsedData(baseTransaction);
 
-      return new WrappedTransaction(baseTransaction, userData);
+      return new WrappedTransaction(baseTransaction, parsedData);
     } catch (error) {
       throw new Error(`Failed to decode transaction. ${error}`);
     }
   }
 
-  private getUserData(transaction: TypedTransaction): ParsedData {
-    const txType = this.getTransactionType(transaction);
+  private getParsedData(transaction: TypedTransaction): ParsedData {
+    const txType = getTransactionType(transaction);
     const contractInfo =
       txType !== "transfer"
         ? this.contractParser.getContractInfo(transaction, txType) || undefined
@@ -110,34 +112,5 @@ export class TransactionBuilder {
       txType,
       contractInfo,
     };
-  }
-
-  private getTransactionType(transaction: TypedTransaction): TransactionType {
-    if (
-      (!transaction.to || isZeroAddress(transaction.to.toString())) &&
-      transaction.data &&
-      !isZeroAddress(transaction.data.toString())
-    ) {
-      return "contract-creation";
-    }
-    if (
-      transaction.to &&
-      !isZeroAddress(transaction.to.toString()) &&
-      (!transaction.data ||
-        transaction.data.toString() === "0x" ||
-        bufferToHex(Buffer.from(transaction.data)) === "0x")
-    ) {
-      return "transfer";
-    }
-    if (
-      transaction.to &&
-      !isZeroAddress(transaction.to.toString()) &&
-      transaction.data &&
-      !isZeroAddress(transaction.data.toString())
-    ) {
-      return "contract-call";
-    }
-
-    return "unknown";
   }
 }

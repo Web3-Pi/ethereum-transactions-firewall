@@ -7,6 +7,7 @@ import { ValidatingProxy } from "./proxy/proxy.js";
 import { WebsocketTransactionValidator } from "./proxy/validator.js";
 import { TransactionBuilder } from "./transactions/builder.js";
 import { ContractParser } from "./transactions/parser.js";
+import { hostname } from "node:os";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,6 +15,7 @@ const __dirname = path.dirname(__filename);
 class App {
   private app = express();
   private logger = createLogger();
+  private proxy?: ValidatingProxy;
 
   constructor() {
     this.setupMiddleware();
@@ -32,38 +34,45 @@ class App {
     this.app.get("/", (req, res) => {
       res.sendFile(path.join(publicDir, "index.html"));
     });
+
+    this.app.post("/api/reload", async (req, res) => {
+      if (!this.proxy) {
+        res.status(500).send("Proxy not running");
+        return;
+      }
+      await this.proxy.reload();
+      res.send("Configuration files reloaded");
+    });
   }
 
   private startServices(): void {
     const contractParser = new ContractParser();
-    const transactionBuilder = new TransactionBuilder(contractParser, {
-      authorizedAddressesPath: config.authorizedAddressesPath,
-      knownContractsPath: config.knownContractsPath,
-      knownContractAbisPath: config.knownContractAbisPath,
-    });
+    const transactionBuilder = new TransactionBuilder(
+      contractParser,
+      {
+        authorizedAddressesPath: config.authorizedAddressesPath,
+        knownContractsPath: config.knownContractsPath,
+        knownContractAbisPath: config.knownContractAbisPath,
+      },
+      this.logger,
+    );
     const transactionValidator = new WebsocketTransactionValidator({
       wssPort: config.wssPort,
       logger: this.logger,
     });
-    const proxy = new ValidatingProxy(
-      transactionValidator,
-      transactionBuilder,
-      {
-        proxyPort: config.proxyPort,
-        endpointUrl: config.rpcEndpoint,
-        logger: this.logger,
-      },
-    );
+    this.proxy = new ValidatingProxy(transactionValidator, transactionBuilder, {
+      proxyPort: config.proxyPort,
+      endpointUrl: config.rpcEndpoint,
+      logger: this.logger,
+    });
 
-    proxy
-      .listen()
-      .then(() =>
-        this.app.listen(config.serverPort, () =>
-          this.logger.info(
-            `Transaction Firewall HTTP Server started on port: ${config.serverPort}`,
-          ),
+    this.app.listen(config.serverPort, () =>
+      this.proxy!.listen().then(() =>
+        this.logger.info(
+          `Transaction Firewall HTTP Server (to accept/reject transactions): http://${hostname}:${config.serverPort}`,
         ),
-      );
+      ),
+    );
   }
 }
 

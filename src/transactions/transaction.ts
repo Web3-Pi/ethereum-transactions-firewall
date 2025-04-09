@@ -24,7 +24,7 @@ export interface ParsedData {
 
 export type TransactionType =
   | "transfer"
-  | "erc-20-transfer"
+  | "erc-20"
   | "contract-creation"
   | "contract-call"
   | "unknown";

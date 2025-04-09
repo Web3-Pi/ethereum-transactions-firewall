@@ -29,6 +29,7 @@ describe("TransactionValidator", () => {
     jest.clearAllMocks();
     const txMock = mock(WrappedTransaction);
     when(txMock.dto).thenReturn({} as TransactionPayload);
+    when(txMock.id).thenReturn("1");
     testTx = instance(txMock);
     validator = new WebsocketTransactionValidator(configMock);
     requestSenderMock = (WebSocketRequestSender as jest.Mock).mock.results[0]
@@ -49,7 +50,7 @@ describe("TransactionValidator", () => {
   test("should accept transaction if client accept request", async () => {
     requestSenderMock.isBusy.mockReturnValue(false);
     requestSenderMock.isActive.mockReturnValue(true);
-    requestSenderMock.send.mockResolvedValue({ result: true });
+    requestSenderMock.send.mockResolvedValue({ result: true, id: "1" });
     await expect(validator.validate(testTx)).resolves.toBe(true);
   });
 
@@ -66,8 +67,9 @@ describe("TransactionValidator", () => {
     requestSenderMock.isBusy.mockReturnValue(false);
     requestSenderMock.isActive.mockReturnValue(true);
     requestSenderMock.send.mockResolvedValue({
+      id: "1",
       result: false,
-      error: "Rejected",
+      message: "Rejected",
     });
     await expect(validator.validate(testTx)).rejects.toThrow(
       new ValidationError("Transaction validation failed. Rejected"),

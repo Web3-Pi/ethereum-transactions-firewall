@@ -9,7 +9,7 @@ part (Public) via WebSocket. The frontend part consists of static HTML/JS files 
 
 The architecture of the system is shown in the diagram below.
 
-![dependency-graph.svg](dependency-graph.svg)
+![dependency-graph.svg](doc/dependency-graph.svg)
 
 ## Current features
 

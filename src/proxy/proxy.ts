@@ -5,6 +5,7 @@ import { TransactionBuilder } from "../transactions/builder.js";
 import { JsonRpcRequest } from "web3";
 import fetch from "node-fetch";
 import { normalizeHeaders } from "../utils/http.js";
+import { hostname } from "node:os";
 
 export interface ProxyConfig {
   proxyPort: number;
@@ -33,8 +34,18 @@ export class ValidatingProxy {
   public async listen(): Promise<void> {
     await this.transactionBuilder.loadConfig();
     this.server.listen(this.proxyPort, () => {
-      this.logger.info(`Validating Proxy started on port: ${this.proxyPort}`);
+      this.logger.info(
+        {
+          "Proxy address (endpoint to be used in a wallet)": `http://${hostname}:${this.proxyPort}`,
+          "Ethereum RPC endpoint used by the firewall": this.endpointUrl,
+        },
+        `Validating Proxy is running`,
+      );
     });
+  }
+
+  public async reload() {
+    await this.transactionBuilder.loadConfig();
   }
 
   public async close(): Promise<void> {

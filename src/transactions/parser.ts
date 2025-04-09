@@ -2,7 +2,7 @@ import { TypedTransaction } from "web3-eth-accounts";
 import { AbiItem, sha3 } from "web3-utils";
 import { decodeParameters } from "web3-eth-abi";
 import { ContractInfo, TransactionType } from "./transaction.js";
-import { Contract, ContractAbi } from "web3";
+import { AbiFragment, Contract, ContractAbi } from "web3";
 import { bufferToHex } from "ethereumjs-util";
 
 export class ContractParser {
@@ -33,6 +33,7 @@ export class ContractParser {
       const contractAddress = transaction.to?.toString()?.toLowerCase() || "";
       const knownAbi = this.knownContractAbis.get(contractAddress);
       if (!knownAbi) {
+        // TODO: predefine standards ABI ERC-20 ...
         return null;
       }
       let contractInstance = this.contractInstances.get(contractAddress);
@@ -49,35 +50,12 @@ export class ContractParser {
 
       const methodData = bufferToHex(Buffer.from(transaction.data));
       const methodSig = methodData.slice(0, 10);
-      const methodAbi = knownAbi.find((abi) => {
-        if (abi.type !== "function") return false;
-        const name = "name" in abi ? abi.name : "";
-        if (!name) return false;
-
-        const signature = `${name}(${abi.inputs?.map((input) => input.type).join(",")})`;
-        const hash = sha3(signature);
-        if (!hash) return false;
-        return hash.slice(0, 10).toLowerCase() === methodSig.toLowerCase();
-      });
+      const methodAbi = this.getMethodAbi(knownAbi, methodSig);
 
       if (methodAbi && methodAbi.type === "function") {
         const inputTypes = methodAbi.inputs?.map((input) => input.type) || [];
         const params = decodeParameters(inputTypes, methodData.slice(10));
-
-        const args = methodAbi.inputs?.map((input, index) => {
-          const value = String(params[index]);
-          const label =
-            input.type === "address"
-              ? this.authorizedAddresses.get(value.toLowerCase())
-              : undefined;
-
-          return {
-            name: input.name || "",
-            type: input.type,
-            value: String(params[index]),
-            label,
-          };
-        });
+        const args = this.getMethodArgs(methodAbi, params);
 
         return {
           address: contractAddress,
@@ -97,6 +75,39 @@ export class ContractParser {
         ) || undefined,
       functionName: "unknown",
       args: [],
-    } as ContractInfo;
+    };
+  }
+
+  private getMethodAbi(knownAbi: AbiItem[], methodSig: string) {
+    return knownAbi.find((abi) => {
+      if (abi.type !== "function") return false;
+      const name = "name" in abi ? abi.name : "";
+      if (!name) return false;
+
+      const signature = `${name}(${abi.inputs?.map((input) => input.type).join(",")})`;
+      const hash = sha3(signature);
+      if (!hash) return false;
+      return hash.slice(0, 10).toLowerCase() === methodSig.toLowerCase();
+    });
+  }
+
+  private getMethodArgs(
+    methodAbi: AbiFragment,
+    params: { [key: string]: unknown },
+  ) {
+    return methodAbi.inputs?.map((input, index) => {
+      const value = String(params[index]);
+      const label =
+        input.type === "address"
+          ? this.authorizedAddresses.get(value.toLowerCase())
+          : undefined;
+
+      return {
+        name: input.name || "unknown",
+        type: input.type,
+        value: String(params[index]),
+        label,
+      };
+    });
   }
 }

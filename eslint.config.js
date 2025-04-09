@@ -26,6 +26,7 @@ export default defineConfig([
       "test",
       "worker",
       "coverage",
+      "frontend",
     ],
   },
 ]);

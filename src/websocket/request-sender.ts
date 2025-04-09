@@ -19,6 +19,9 @@ export class WebSocketRequestSender {
     this.wss = new Wss({ port: config.wssPort });
     this.logger = config.logger;
     this.wss.on("connection", this.handleConnection.bind(this));
+    this.wss.on("listening", () =>
+      this.logger.info(`WebSocket server listening on port ${config.wssPort}`),
+    );
   }
 
   private handleConnection(ws: WebSocket) {
@@ -67,7 +70,7 @@ export class WebSocketRequestSender {
     return this.ws !== null;
   }
 
-  public async send<T>(data: string, timeoutMs: number = 25000): Promise<T> {
+  public async send<T>(data: string, timeoutMs: number = 60_000): Promise<T> {
     if (!this.ws) {
       throw new Error("WebSocket is not connected");
     }
