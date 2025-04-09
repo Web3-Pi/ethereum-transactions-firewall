@@ -7,18 +7,16 @@ import { bufferToHex } from "ethereumjs-util";
 
 export class ContractParser {
   private authorizedAddresses: Map<string, string> = new Map();
-  private knownContracts: Map<string, string> = new Map();
-  private knownContractAbis: Map<string, AbiItem[]> = new Map();
+  private knownContracts: Map<string, { name: string; abi?: AbiItem }> =
+    new Map();
   private contractInstances: Map<string, Contract<ContractAbi>> = new Map();
 
   public loadConfig(
     authorizedAddresses: Map<string, string>,
-    knownContracts: Map<string, string>,
-    knownContractAbis: Map<string, AbiItem[]>,
+    knownContracts: Map<string, { name: string; abi?: AbiItem }>,
   ): void {
     this.authorizedAddresses = authorizedAddresses;
     this.knownContracts = knownContracts;
-    this.knownContractAbis = knownContractAbis;
   }
 
   public getContractInfo(
@@ -31,11 +29,17 @@ export class ContractParser {
     }
     if (txType === "contract-call") {
       const contractAddress = transaction.to?.toString()?.toLowerCase() || "";
-      const knownAbi = this.knownContractAbis.get(contractAddress);
-      if (!knownAbi) {
+      const knownContract = this.knownContracts.get(contractAddress);
+
+      if (!knownContract || !knownContract.abi) {
         // TODO: predefine standards ABI ERC-20 ...
         return null;
       }
+
+      const knownAbi = Array.isArray(knownContract.abi)
+        ? knownContract.abi
+        : [knownContract.abi];
+
       let contractInstance = this.contractInstances.get(contractAddress);
       if (!contractInstance) {
         contractInstance = new Contract(
@@ -59,8 +63,7 @@ export class ContractParser {
 
         return {
           address: contractAddress,
-          labelAddress:
-            this.knownContracts.get(contractAddress.toLowerCase()) || undefined,
+          labelAddress: knownContract.name,
           functionName: "name" in methodAbi ? methodAbi.name : "unknown",
           args,
         };
@@ -69,10 +72,9 @@ export class ContractParser {
 
     return {
       address: transaction.to?.toString() || "",
-      labelAddress:
-        this.knownContracts.get(
-          transaction.to?.toString().toLowerCase() || "",
-        ) || undefined,
+      labelAddress: this.knownContracts.get(
+        transaction.to?.toString().toLowerCase() || "",
+      )?.name,
       functionName: "unknown",
       args: [],
     };

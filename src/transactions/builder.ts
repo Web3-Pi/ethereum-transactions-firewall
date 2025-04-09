@@ -7,6 +7,7 @@ import { ContractParser } from "./parser.js";
 import * as fs from "node:fs";
 import { getTransactionType } from "../utils/transaction.js";
 import { Logger } from "../utils/logger.js";
+import { AbiItem } from "web3-utils";
 
 export interface TransactionBuilderConfig {
   authorizedAddressesPath: string;
@@ -14,11 +15,16 @@ export interface TransactionBuilderConfig {
   knownContractAbisPath: string;
 }
 
+export type ContractItem = {
+  name: string;
+  abi?: AbiItem;
+};
+
 export class TransactionBuilder {
   private isLoaded = false;
 
   private authorizedAddresses = new Map<string, string>();
-  private knownContracts = new Map<string, string>();
+  private knownContracts = new Map<string, ContractItem>();
 
   constructor(
     private contractParser: ContractParser,
@@ -28,7 +34,7 @@ export class TransactionBuilder {
 
   public async loadConfig() {
     try {
-      const authorizedAddresses: [string, string][] = Object.entries(
+      const authorizedAddressesData: [string, string][] = Object.entries(
         JSON.parse(
           await fs.promises.readFile(
             this.config.authorizedAddressesPath,
@@ -36,39 +42,29 @@ export class TransactionBuilder {
           ),
         ),
       );
-      const knownContracts: [string, string][] = Object.entries(
-        JSON.parse(
-          await fs.promises.readFile(this.config.knownContractsPath, "utf-8"),
-        ),
+      const knownContractsData = JSON.parse(
+        await fs.promises.readFile(this.config.knownContractsPath, "utf-8"),
       );
-      const knownContractAbis: string[][] = Object.entries(
-        JSON.parse(
-          await fs.promises.readFile(
-            this.config.knownContractAbisPath,
-            "utf-8",
-          ),
-        ),
-      ).flatMap(([name, abis]) =>
-        (abis as object[]).map((abi) => [name, JSON.stringify(abi)]),
-      );
+
       this.authorizedAddresses = new Map(
-        authorizedAddresses.map(([address, name]) => [
+        authorizedAddressesData.map(([address, name]) => [
           address.toLowerCase(),
           name,
         ]),
       );
       this.knownContracts = new Map(
-        knownContracts.map(([address, name]) => [address.toLowerCase(), name]),
+        Object.entries(knownContractsData).map(([address, contractData]) => [
+          address.toLowerCase(),
+          {
+            name: (contractData as ContractItem).name,
+            abi: (contractData as ContractItem).abi,
+          },
+        ]),
       );
+
       this.contractParser.loadConfig(
         this.authorizedAddresses,
         this.knownContracts,
-        new Map(
-          knownContractAbis.map(([address, abi]) => [
-            address.toLowerCase(),
-            JSON.parse(abi),
-          ]),
-        ),
       );
       if (this.isLoaded) {
         this.logger.info("Configuration files reloaded");
@@ -109,7 +105,7 @@ export class TransactionBuilder {
         ) || "unknown",
       labelTo:
         this.authorizedAddresses.get(transaction.to?.toString() || "") ||
-        this.knownContracts.get(transaction.to?.toString() || "") ||
+        this.knownContracts.get(transaction.to?.toString() || "")?.name ||
         "unknown",
       txType,
       contractInfo,

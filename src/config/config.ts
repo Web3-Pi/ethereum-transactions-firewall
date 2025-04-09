@@ -9,7 +9,6 @@ interface Config {
   rpcEndpoint: string;
   authorizedAddressesPath: string;
   knownContractsPath: string;
-  knownContractAbisPath: string;
 }
 
 const config: Config = {
@@ -20,8 +19,6 @@ const config: Config = {
   authorizedAddressesPath: process.env.AUTHORIZED_ADDR_PATH || "auth_addr.json",
   knownContractsPath:
     process.env.KNOWN_CONTRACTS_PATH || "known_contracts.json",
-  knownContractAbisPath:
-    process.env.CONTRACT_ABIS_PATH || "known_contract_abis.json",
 };
 
 export default config;
