@@ -25,6 +25,13 @@ class App {
 
   private setupMiddleware(): void {
     const publicDir = path.join(__dirname, "../frontend/dist");
+    this.app.get("/config.js", (req, res) => {
+      res.setHeader("Content-Type", "application/javascript");
+      res.send(
+        `window.__CONFIG = { WS_URL: "ws://${hostname}:${config.wssPort}" };`,
+      );
+    });
+
     this.app.use(express.static(publicDir));
   }
 

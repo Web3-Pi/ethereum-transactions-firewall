@@ -6,9 +6,12 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 import { useEffect, useState } from "react";
 
 function App() {
-  const { status, currentTransaction, connect, sendMessage } = useWebSocket(
-    "ws://localhost:18501",
-  );
+  const websocketUrl =
+    (window as Window & { __CONFIG?: { WS_URL?: string } }).__CONFIG?.WS_URL ||
+    "ws://localhost:18501";
+
+  const { status, currentTransaction, connect, sendMessage } =
+    useWebSocket(websocketUrl);
   const [isDialogOpen, setIsDialogOpen] = useState(true);
   const [isAlertOpen, setIsAlertOpen] = useState(true);
 
