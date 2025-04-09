@@ -49,7 +49,7 @@ export class ValidatingProxy {
   }
 
   public async close(): Promise<void> {
-    this.server.close(() => this.logger.info(`Proxy closed`));
+    this.server.close(() => this.logger.info(`Validating Proxy closed`));
   }
 
   private async processRequest(req: IncomingMessage, res: ServerResponse) {

@@ -31,6 +31,10 @@ export class WebsocketTransactionValidator extends TransactionValidator {
     this.logger = config.logger;
   }
 
+  public close() {
+    this.wss.close();
+  }
+
   public async validate(tx: WrappedTransaction): Promise<true> {
     if (this.wss.isBusy()) {
       this.logger.warn(

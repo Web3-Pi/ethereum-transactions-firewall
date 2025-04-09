@@ -24,6 +24,10 @@ export class WebSocketRequestSender {
     );
   }
 
+  public close() {
+    this.wss.close(() => this.logger.info(`WebSocket server closed`));
+  }
+
   private handleConnection(ws: WebSocket) {
     this.activeConnectionId = this.connectionCounter++;
     this.logger.info(

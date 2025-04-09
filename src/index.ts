@@ -80,6 +80,16 @@ class App {
         ),
       ),
     );
+
+    process.on("SIGINT", async () => {
+      this.logger.info("Shutting down gracefully...");
+
+      await this.proxy!.close();
+      transactionValidator.close();
+      this.logger.info("Transaction Firewall closed");
+
+      process.exit(0);
+    });
   }
 }
 
