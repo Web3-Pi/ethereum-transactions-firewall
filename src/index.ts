@@ -59,7 +59,6 @@ class App {
       {
         authorizedAddressesPath: config.authorizedAddressesPath,
         knownContractsPath: config.knownContractsPath,
-        knownContractAbisPath: config.knownContractAbisPath,
       },
       this.logger,
     );

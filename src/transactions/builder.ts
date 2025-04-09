@@ -12,7 +12,6 @@ import { AbiItem } from "web3-utils";
 export interface TransactionBuilderConfig {
   authorizedAddressesPath: string;
   knownContractsPath: string;
-  knownContractAbisPath: string;
 }
 
 export type ContractItem = {
