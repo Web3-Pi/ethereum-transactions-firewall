@@ -10,12 +10,23 @@ Log in to your Raspberry Pi and follow the instructions below.
 
 ### Node.js
 
-This is a [Node.js](https://nodejs.org/) project, so if you don't have it installed on your device, follow the steps below:
+This is a [Node.js](https://nodejs.org/) project with TypeScript support, so if you don't have it installed on your device, follow the steps below:
 ```bash
 sudo apt update
 sudo apt install nodejs
 sudo apt install npm
 ```
+
+### TypeScript
+
+This project has been migrated to TypeScript for improved code quality and developer experience. The original JavaScript code has been backed up in the `backup/` directory. The TypeScript version provides:
+
+- Type safety and better IntelliSense support
+- Modern ES module imports
+- Improved error handling
+- Better code organization
+
+For more details on the migration, see the [MIGRATION.md](./MIGRATION.md) file.
 
 
 ### Ethereum Transaction Firewall
@@ -116,8 +127,22 @@ and store the mapping in the file, e.g.:
 
 
 The service is configured and ready to run. To start the service, execute the following command from the main project directory:
+
+For JavaScript version:
 ```bash
 node index.js
+```
+
+For TypeScript version:
+```bash
+# First build the TypeScript files
+npm run build
+
+# Then run the compiled code
+npm run start
+
+# Or for development with automatic reloading
+npm run dev
 ```
 
 On successful startup, the application will print the following (or similar) output:
@@ -168,8 +193,10 @@ Currently, the following requests are submitted to the RPC endpoint:
 
 #### Configuration
 
-The testing framework sends transactions to a predefined RPC endpoint (i.e., a running Ethereum Transaction Firewall service). This endpoint can be specified in a file _test/txnemitter.js_, which looks like this:
-```node
+The testing framework sends transactions to a predefined RPC endpoint (i.e., a running Ethereum Transaction Firewall service). This endpoint can be specified in a file _test/txnemitter.js_ (or _test/txnemitter.ts_ for TypeScript), which looks like this:
+
+JavaScript:
+```javascript
 const process = require('process');
 const path = require('path');
 
@@ -181,9 +208,22 @@ const { DefaultTriggeredRequests } = require('./sandbox/requestgenerator');
 const trigger = new DefaultTriggeredRequests(`http://localhost:${proxy_port}`);
 ```
 
+TypeScript:
+```typescript
+import * as process from 'process';
+import * as path from 'path';
+
+process.chdir(path.join(__dirname, '..'));
+
+import config from '../src/config/config';
+import { DefaultTriggeredRequests } from './sandbox/requestgenerator';
+
+const trigger = new DefaultTriggeredRequests(`http://localhost:${config.proxy_port}`);
+```
+
 To change the RPC endpoint, change the line:
-```node
-const trigger = new DefaultTriggeredRequests(`http://localhost:${proxy_port}`);
+```typescript
+const trigger = new DefaultTriggeredRequests(`http://localhost:${config.proxy_port}`);
 ```
 by adding the address of the correct RPC endpoint.
 
@@ -191,9 +231,17 @@ by adding the address of the correct RPC endpoint.
 #### Running
 
 With the correct RPC endpoint provided, run the tester from the main working dir by executing the following command:
+
+JavaScript:
 ```bash
 node test/txnemitter.js
 ```
+
+TypeScript:
+```bash
+npx ts-node test/txnemitter.ts
+```
+
 and send requests by pressing keys from 1 to 6.
 
 ## Regular use
