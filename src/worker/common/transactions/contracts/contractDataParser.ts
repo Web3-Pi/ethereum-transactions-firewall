@@ -1,3 +1,4 @@
+// @ts-ignore - Ignore abi-decoder type checking issues
 import abiDecoder from 'abi-decoder'
 import { DummyHelper } from './dummyhelper'
 import { FieldDataProvider } from './fielddataprovider'

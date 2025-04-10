@@ -11,5 +11,5 @@ declare module 'abi-decoder' {
       }>;
     } | null;
   };
-  export = abiDecoder;
+  export default abiDecoder;
 }
