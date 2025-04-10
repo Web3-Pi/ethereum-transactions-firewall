@@ -1,22 +1,37 @@
 {
   "name": "transactionfirewall",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A simple POC service to let user accept/reject ehtereum transaction before it reaches RPC endpoint",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p tsconfig/tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint 'src/**/*.ts'",
+    "typecheck": "tsc --noEmit -p tsconfig/tsconfig.json"
   },
   "author": "jimmysithis",
   "license": "MIT",
   "dependencies": {
     "abi-decoder": "^2.4.0",
+    "axios": "^1.6.8",
     "dotenv": "^16.4.5",
     "ethereumjs-util": "^7.1.5",
     "express": "^4.19.2",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6",
     "uuid": "^10.0.0",
     "web3": "^4.11.1",
+    "ws": "^8.16.0",
     "xmlhttprequest": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.30",
+    "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint": "^8.57.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.4"
   }
 }
