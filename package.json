@@ -1,5 +1,5 @@
 {
-  "name": "w3p_tx_firewall",
+  "name": "w3p-tx-firewall",
   "version": "0.2.0",
   "description": "A simple POC service to let user accept/reject ethereum transaction before it reaches RPC endpoint",
   "keywords": [
@@ -16,7 +16,6 @@
     "start": "node dist/index.js",
     "build:backend": "tsc",
     "build:frontend": "npm run build --prefix frontend",
-    "build:sea": "node --experimental-sea-config sea-config.json",
     "build": "npm run build:backend && npm run build:frontend",
     "prod": "npm run build && node dist/index.js",
     "lint": "eslint",
