@@ -30,4 +30,5 @@ backup/
 
 # Local files
 bun.lockb
-PLAN.md
+.mcp.json
+

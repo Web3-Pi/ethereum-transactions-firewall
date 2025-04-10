@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Development: `npm run dev`
 - Typecheck: `npm run typecheck`
 - Lint: `npm run lint`
-- Run manual test: `npx ts-node test/txnemitter.ts`
+- Run manual test: `npm run test:manual`
 
 ## Code Style Guidelines
 - Use TypeScript with ES modules (import/export)

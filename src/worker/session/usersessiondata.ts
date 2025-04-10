@@ -19,7 +19,18 @@ export class UserSessionData {
       Web3.utils.toChecksumAddress
     )
     
-    const knownABIs = readJSONDict<any>(config.contract_abis_fn)
+    interface ContractABI {
+      constant?: boolean
+      inputs: Array<{ name: string; type: string; indexed?: boolean }>
+      name: string
+      outputs?: Array<{ name: string; type: string }>
+      payable?: boolean
+      stateMutability?: string
+      type: string
+      anonymous?: boolean
+    }
+
+    const knownABIs = readJSONDict<ContractABI[]>(config.contract_abis_fn)
 
     printElements('Authorized addresses:', this.authAddresses)
     printElements('\nKnown contracts:', knownContracts)
