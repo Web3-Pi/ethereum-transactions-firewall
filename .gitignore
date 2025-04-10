@@ -27,3 +27,7 @@ Thumbs.db
 
 # Backup of original JS code
 backup/
+
+# Local files
+bun.lockb
+PLAN.md

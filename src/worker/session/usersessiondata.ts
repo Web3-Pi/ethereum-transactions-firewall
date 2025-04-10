@@ -1,5 +1,5 @@
-import { Web3 } from 'web3'
-import config from '../../../config/config'
+import Web3 from 'web3'
+import config from '../../config/config'
 import { readJSONDict, printElements, printKeys } from '../common/util/jsonutil'
 import { ContractDataParser } from '../common/transactions/contracts/contractDataParser'
 import { ParsedContractData } from '../common/transactions/transaction'

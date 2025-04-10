@@ -1,7 +1,19 @@
 import { toBuffer } from 'ethereumjs-util'
-import { Web3 } from 'web3'
+import Web3 from 'web3'
 import { StubTransaction } from './transaction'
 import { UserSessionData } from '../../session/usersessiondata'
+
+// Create a web3 instance for accessing static methods
+const web3 = new Web3()
+
+// Define transaction interface based on web3 types
+interface DecodedTransaction {
+  from: string
+  to?: string
+  value?: string
+  input?: string
+  hash?: string
+}
 
 // https://github.com/dethcrypto/dethtools/blob/main/README.md
 // https://github.com/ethereumjs/ethereumjs-monorepo
@@ -15,13 +27,13 @@ export class RawTransactionDecoder {
 
   decodeTxn(rawTxn: string): StubTransaction {
     try {
-      const rxDataBuffer = toBuffer(rawTxn)
-      const txn = Web3.eth.accounts.TransactionFactory.fromSerializedData(rxDataBuffer)
+      // Use web3 instance to recover the transaction
+      const txn = web3.eth.accounts.recoverTransaction(rawTxn) as unknown as DecodedTransaction
 
-      const sender = Web3.utils.toChecksumAddress(txn.getSenderAddress().toString())
-      const recipient = Web3.utils.toChecksumAddress(txn.to.toString())
-      const value = txn.value.toString()
-      const data = txn.data.length == 0 ? '' : Web3.utils.toHex(txn.data)
+      const sender = web3.utils.toChecksumAddress(txn.from)
+      const recipient = web3.utils.toChecksumAddress(txn.to || '')
+      const value = txn.value || '0'
+      const data = !txn.input || txn.input === '0x' ? '' : txn.input
       const parsedContractData = this.userSessionData.parseContractData(recipient, data)
 
       return new StubTransaction(sender, recipient, value, data, parsedContractData)
