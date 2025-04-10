@@ -31,4 +31,6 @@ backup/
 # Local files
 bun.lockb
 .mcp.json
+.auth_addr
+.known_contracts
 

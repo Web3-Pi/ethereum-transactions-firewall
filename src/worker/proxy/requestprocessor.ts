@@ -29,7 +29,8 @@ export class ValidatingRequestProcessor {
   }
 
   private logNewRequest(reqData: JsonRpcRequest): void {
-    let paramsStr = JSON.stringify(reqData.params)
+    let paramsStr = JSON.stringify(reqData.params || []);
+
     if (paramsStr.length > 150 - 19) {
       paramsStr = paramsStr.substring(0, 150 - 19) + ' ..."]'
     }
@@ -87,7 +88,7 @@ export class ValidatingRequestProcessor {
 
   validatingResponseHandler(data: string, req: IncomingMessage, res: ServerResponse): void {
     const reqData: JsonRpcRequest = JSON.parse(data)
-    
+
     this.logNewRequest(reqData)
 
     const headers: Record<string, string> = {}

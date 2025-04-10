@@ -24,7 +24,7 @@ const envs: EnvConfig = {
   ...result.parsed as Record<string, string>,
   server_port: parseInt(result.parsed?.server_port || '3000', 10),
   proxy_port: parseInt(result.parsed?.proxy_port || '8545', 10),
-  wss_port: parseInt(result.parsed?.wss_port || '8546', 10),
+  wss_port: parseInt(result.parsed?.wss_port || '18501', 10),
   rpc_endpoint: result.parsed?.rpc_endpoint || 'http://localhost:8545',
   authorized_addr_fn: result.parsed?.authorized_addr_fn || '.auth_addr',
   known_contracts_fn: result.parsed?.known_contracts_fn || '.known_contracts',
