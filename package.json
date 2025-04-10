@@ -16,6 +16,7 @@
     "start": "node dist/index.js",
     "build:backend": "tsc",
     "build:frontend": "npm run build --prefix frontend",
+    "build:sea": "node --experimental-sea-config sea-config.json",
     "build": "npm run build:backend && npm run build:frontend",
     "prod": "npm run build && node dist/index.js",
     "lint": "eslint",

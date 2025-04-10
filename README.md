@@ -51,18 +51,15 @@ description of the available variables that you can set:
 - `AUTHORIZED_ADDR_PATH`: Path to the file containing the list of authorized addresses.  
   **Default:** `auth_addr.json`
 
-- `KNOWN_CONTRACTS_PATH`: Path to the file containing information about known contracts mapped to their labels.  
+- `KNOWN_CONTRACTS_PATH`: Path to the file containing information about known contracts mapped to their labels and abi.  
   **Default:** `known_contracts.json`
-
-- `CONTRACT_ABIS_PATH`: Path to the file containing ABIs (Application Binary Interfaces) for the known contracts.  
-  **Default:** `known_contract_abis.json`
 
 Be sure to restart the application after making changes to the `.env` file for them to take effect.
 
 
 #### Authorized addresses
 
-You can optionally assign a corresponding label to each authorized address. To do this, edit a file _auth_addr.json_ and store the mapping in the file, e.g.:
+You can optionally assign a corresponding label to each authorized address. To do this, edit a file `auth_addr.json` and store the mapping in the file, e.g.:
 ```json
 {
   "0x00000000219ab540356cBB839Cbe05303d7705Fa": "Beacon Deposit Contract",
@@ -73,29 +70,35 @@ You can optionally assign a corresponding label to each authorized address. To d
 
 If any of these addresses are used, the firewall will label them accordingly.
 
-#### Known contracts
-
-You can optionally assign a corresponding label (a contract type) to each contract address that the code knows how to parse. To do this, edit a file _known_contracts.json_, and store the mapping in the file, e.g.:
-```json
-{
-    "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429": "glm",
-    "0x00000000219ab540356cBB839Cbe05303d7705Fa": "bdc"
-}
-```
-If a transaction is made on any of these contracts, the firewall will label them accordingly.
 
 #### Known contracts
 
-You can optionally provide ABI to each of the known contract types. To do this, edit a file _known_contract_abis.json_, by calling  and store the mapping in the file, e.g.:
+You can optionally include the address of a known contract, its name, and its ABI. This allows the parser to decode its
+functions and display the appropriate label during transactions.
+
+To set this up, edit the `known_contracts.json` file and add the appropriate mappings. For example:
+
 ```json
 {
-    "glm": [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"PERMIT_TYPEHASH","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"DOMAIN_SEPARATOR","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"account","type":"address"},{"name":"amount","type":"uint256"}],"name":"mint","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"version","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"nonces","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"holder","type":"address"},{"name":"spender","type":"address"},{"name":"nonce","type":"uint256"},{"name":"expiry","type":"uint256"},{"name":"allowed","type":"bool"},{"name":"v","type":"uint8"},{"name":"r","type":"bytes32"},{"name":"s","type":"bytes32"}],"name":"permit","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"account","type":"address"}],"name":"addMinter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"renounceMinter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"isMinter","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_migrationAgent","type":"address"},{"name":"_chainId","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"account","type":"address"}],"name":"MinterAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"account","type":"address"}],"name":"MinterRemoved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}],
-    "bdc": [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes","name":"pubkey","type":"bytes"},{"indexed":false,"internalType":"bytes","name":"withdrawal_credentials","type":"bytes"},{"indexed":false,"internalType":"bytes","name":"amount","type":"bytes"},{"indexed":false,"internalType":"bytes","name":"signature","type":"bytes"},{"indexed":false,"internalType":"bytes","name":"index","type":"bytes"}],"name":"DepositEvent","type":"event"},{"inputs":[{"internalType":"bytes","name":"pubkey","type":"bytes"},{"internalType":"bytes","name":"withdrawal_credentials","type":"bytes"},{"internalType":"bytes","name":"signature","type":"bytes"},{"internalType":"bytes32","name":"deposit_data_root","type":"bytes32"}],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"get_deposit_count","outputs":[{"internalType":"bytes","name":"","type":"bytes"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"get_deposit_root","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"}]
+  "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429": "GLM Token Contract",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "exampleFunction",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
 }
 ```
-
-If a transaction is performed on the entered contract, the firewall will display the appropriate names of the methods and their parameters. If the parameter is of the address type, a label will also be displayed if it is found as a known address / contract.
-
 
 ## Running
 
@@ -120,6 +123,10 @@ To start accepting transactions, open the web browser on a machine in a local su
 ```
 http://eop-1.local:8454
 ```
+You should see a window:
+
+<img src="./doc/firewall.png" alt="Firewall app" width="700">
+
 
 ### Details
 
@@ -129,8 +136,43 @@ http://eop-1.local:8454
 - This is an asynchronous service, but it serves only one request at a time
   - Requests are not queued
   - New requests sent during the processing of a previous one are automatically forwarded to the configured RPC endpoint
-- If _known_contracts.json_ and _known_contract_abis.json_ were provided, then the known contract calls will be rendered with additional details (e.g., custom GLM _transfer_ view will display the target address and the GLM amount)
+- If _known_contracts.json_  were provided, then the known contract calls will be rendered with additional details (e.g., custom GLM _transfer_ view will display the target address and the GLM amount)
 
+#### Accepting simple transfer 
+<img src="./doc/tx-transfer.png" alt="Firewall app" width="700">
+
+#### Accepting contract transaction
+<img src="./doc/tx-contract.png" alt="Firewall app" width="700">
+
+## Regular use
+
+This project is a firewall between the wallet and the RPC endpoint (Ethereum mainnet only). Change the configured RPC endpoint to the proxy address to enable it in your wallet of choice.
+
+### Metamask
+
+#### Prerequisites
+
+Before configuring the Metamask, make sure that your [Ethereum On Raspberry Pi](https://github.com/Web3-Pi/Ethereum-On-Raspberry-Pi) device (RPC endpoint) is synchronized and online. Let's assume that the default device name `http://eop-1.local` is used.
+
+Make sure that the firewall is running. To launch it, follow [this instruction](#running).
+
+#### Custom RPC endpoint configuration
+
+To navigate to the network configuration window in Metamask, follow [the official Metamask instructions](https://support.metamask.io/networks-and-sidechains/managing-networks/how-to-add-a-custom-network-rpc/) and then fill in the required fields. For example (assuming that the firewall was launched with the default configuration options, i.e., the default port numbers):
+
+| Metamask field                | Value                      |
+| ----------------------------- | -------------------------- |
+| Network name                  | _Ethereum txn firewall_    |
+| New RPC URL                   | `http://eop-1.local:18500` |
+| Chain ID                      | _1_                        |
+| Currency symbol               | _ETH_                      |
+| Block explorer URL (Optional) | `http://etherscan.io`      |
+
+<img src="./doc/metamask.png" alt="Metamask" width="300">
+
+After setting up the custom RPC, you should see that the firewall processes requests from your Metamask (e.g., Ethereum state reads).
+
+If you open the webpage associated with the firewall in a browser (i.e., `http://eop-1.local:8454`), you'll be able to inspect and then accept or reject all transactions submitted via Metamask.
 
 ## Testing
 
@@ -150,7 +192,6 @@ Currently, the following requests are submitted to the RPC endpoint:
 4 - READ: requestContractRead
 5 - WRITE: requestErc20TransferTxn - GLM
 ```
-
 
 #### Configuration
 
@@ -181,32 +222,3 @@ With the correct RPC endpoint provided, run the tester from the main working dir
 node test/txnemitter.js
 ```
 and send requests by pressing keys from 1 to 6.
-
-## Regular use
-
-This project is a firewall between the wallet and the RPC endpoint (Ethereum mainnet only). Change the configured RPC endpoint to the proxy address to enable it in your wallet of choice.
-
-### Metamask
-
-
-#### Prerequisites
-
-Before configuring the Metamask, make sure that your [Ethereum On Raspberry Pi](https://github.com/Web3-Pi/Ethereum-On-Raspberry-Pi) device (RPC endpoint) is synchronized and online. Let's assume that the default device name `http://eop-1.local` is used.
-
-Make sure that the firewall is running. To launch it, follow [this instruction](#running).
-
-#### Custom RPC endpoint configuration
- 
-To navigate to the network configuration window in Metamask, follow [the official Metamask instructions](https://support.metamask.io/networks-and-sidechains/managing-networks/how-to-add-a-custom-network-rpc/) and then fill in the required fields. For example (assuming that the firewall was launched with the default configuration options, i.e., the default port numbers):
-
-| Metamask field                | Value                      |
-| ----------------------------- | -------------------------- |
-| Network name                  | _Ethereum txn firewall_    |
-| New RPC URL                   | `http://eop-1.local:18500` |
-| Chain ID                      | _1_                        |
-| Currency symbol               | _ETH_                      |
-| Block explorer URL (Optional) | `http://etherscan.io`      |
-
-After setting up the custom RPC, you should see that the firewall processes requests from your Metamask (e.g., Ethereum state reads).
-
-If you open the webpage associated with the firewall in a browser (i.e., `http://eop-1.local:8454`), you'll be able to inspect and then accept or reject all transactions submitted via Metamask.
