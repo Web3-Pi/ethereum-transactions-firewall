@@ -80,23 +80,25 @@ To set this up, edit the `known_contracts.json` file and add the appropriate map
 
 ```json
 {
-  "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429": "GLM Token Contract",
-  "abi": [
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "exampleFunction",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ]
+  "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429": {
+    "name": "GLM Token Contract",
+    "abi": [
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "exampleFunction",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ]
+  }
 }
 ```
 

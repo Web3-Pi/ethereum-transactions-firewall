@@ -83,7 +83,7 @@ export function TransactionDialog({
           className="mb-4 w-30 rounded-full border-2 border-white p-2"
         />
         <CardTitle className="text-xl font-bold text-center">
-          Do you want to accept transaction ?
+          Do you want to accept transaction?
           <div className="text-sm text-muted-foreground mt-2">
             <Tooltip>
               <TooltipTrigger>
