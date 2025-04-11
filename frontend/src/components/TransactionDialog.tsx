@@ -16,6 +16,7 @@ import { TransactionPayload } from "@/hooks/useWebSocket";
 import smallLogo from "/src/assets/shielded_logo_small.png";
 import { CheckCircle, XCircle } from "lucide-react";
 import React from "react";
+import { formatEther } from "ethers";
 
 export function TransactionDialog({
   transactionPayload,
@@ -57,8 +58,7 @@ export function TransactionDialog({
     label?: string;
   }) => {
     if (arg.value === null) return "Unknown";
-    if (arg.type === "uint256")
-      return (parseFloat(arg.value) / 1e18).toFixed(6);
+    if (arg.type === "uint256") return formatEther(arg.value);
     if (arg.type === "address")
       return (
         <>
