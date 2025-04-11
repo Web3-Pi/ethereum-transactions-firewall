@@ -7,14 +7,17 @@ const baseConfig = {
 
 const devConfig = {
   ...baseConfig,
-  transport: {
-    target: require.resolve("pino-pretty"),
-    options: {
-      colorize: true,
-      translateTime: "SYS:standard",
-      ignore: "pid,hostname",
-    },
-  },
+  transport:
+    process.env.BUNDLED === "true"
+      ? undefined
+      : {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "SYS:standard",
+            ignore: "pid,hostname",
+          },
+        },
 };
 
 const prodConfig = {
