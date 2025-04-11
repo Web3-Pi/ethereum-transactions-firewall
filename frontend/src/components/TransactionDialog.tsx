@@ -59,10 +59,10 @@ export function TransactionDialog({
     if (arg.value === null) return "Unknown";
     if (arg.type === "uint256")
       return (parseFloat(arg.value) / 1e18).toFixed(6);
-    if (arg.type === "address" && arg.label)
+    if (arg.type === "address")
       return (
         <>
-          <b>{arg.label}</b>
+          <b>{arg.label || "unknown"}</b>
           <br />
           {formatAddressAsLink(arg.value)}
         </>
