@@ -8,7 +8,7 @@ const baseConfig = {
 const devConfig = {
   ...baseConfig,
   transport: {
-    target: "pino-pretty",
+    target: require.resolve("pino-pretty"),
     options: {
       colorize: true,
       translateTime: "SYS:standard",
