@@ -115,8 +115,7 @@ export function TransactionDialog({
           </div>
           <div className="font-semibold">Value:</div>
           <div>
-            <b>{(parseFloat(transactionPayload.value) / 1e18).toFixed(6)}</b>{" "}
-            ETH
+            <b>{formatEther(transactionPayload.value)}</b> ETH
           </div>
           {transactionPayload.txType !== "transfer" && (
             <p className="col-span-2 text-lg font-semibold mt-6 mb-6 border-b">
