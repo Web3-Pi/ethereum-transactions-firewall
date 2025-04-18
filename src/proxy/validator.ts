@@ -17,6 +17,7 @@ export type WebsocketResponse = {
 export interface WebsocketTransactionValidatorConfig {
   wssPort: number;
   logger: Logger;
+  timeoutMs?: number;
 }
 
 export class ValidationError extends Error {}

@@ -22,12 +22,12 @@ export function TransactionDialog({
   transactionPayload,
   onAccept,
   onReject,
-  timeout = 30000,
+  timeout,
 }: {
   transactionPayload: TransactionPayload;
   onAccept: () => void;
   onReject: (message?: string) => void;
-  timeout?: number;
+  timeout: number;
 }) {
   const [progress, setProgress] = useState(0);
 
@@ -168,11 +168,16 @@ export function TransactionDialog({
         </div>
       </CardContent>
       <CardFooter className="flex flex-col items-center gap-4 mt-6">
-        <div className="w-full rounded-full h-2 bg-primary">
-          <div
-            className="bg-secondary h-2 rounded-full"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="w-full flex items-center gap-4">
+          <div className="w-full rounded-full h-2 bg-primary">
+            <div
+              className="bg-secondary h-2 rounded-full"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <span className="text-sm font-semibold w-10 text-center">
+            {timeout / 1000 - Math.floor((progress / 100) * (timeout / 1000))}s
+          </span>
         </div>
         <div className="flex gap-12 mt-6">
           <Button

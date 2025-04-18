@@ -5,10 +5,15 @@ import { TransactionDialog } from "@/components/TransactionDialog.tsx";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useEffect, useState } from "react";
 
+type AppConfig = {
+  WS_URL?: string;
+  INTERACTIVE_MODE_TIMEOUT_SEC?: number;
+};
 function App() {
-  const websocketUrl =
-    (window as Window & { __CONFIG?: { WS_URL?: string } }).__CONFIG?.WS_URL ||
-    "ws://localhost:18501";
+  const appConfig = (window as Window & { __CONFIG?: AppConfig }).__CONFIG;
+  const websocketUrl = appConfig?.WS_URL || "ws://localhost:18501";
+  const interactiveModeTimeoutSec =
+    appConfig?.INTERACTIVE_MODE_TIMEOUT_SEC || 30;
 
   const { status, currentTransaction, connect, sendMessage } =
     useWebSocket(websocketUrl);
@@ -74,6 +79,7 @@ function App() {
           transactionPayload={currentTransaction}
           onAccept={handleAcceptTransaction}
           onReject={handleRejectTransaction}
+          timeout={interactiveModeTimeoutSec * 1000}
         />
       )}
     </main>

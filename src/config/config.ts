@@ -9,6 +9,7 @@ interface Config {
   rpcEndpoint: string;
   authorizedAddressesPath: string;
   knownContractsPath: string;
+  interactiveModeTimeoutSec: number;
 }
 
 const config: Config = {
@@ -19,6 +20,10 @@ const config: Config = {
   authorizedAddressesPath: process.env.AUTHORIZED_ADDR_PATH || "auth_addr.json",
   knownContractsPath:
     process.env.KNOWN_CONTRACTS_PATH || "known_contracts.json",
+  interactiveModeTimeoutSec: parseInt(
+    process.env.INTERACTIVE_MODE_TIMEOUT_SEC || "30",
+    10,
+  ),
 };
 
 export default config;

@@ -28,7 +28,7 @@ class App {
     this.app.get("/config.js", (req, res) => {
       res.setHeader("Content-Type", "application/javascript");
       res.send(
-        `window.__CONFIG = { WS_URL: "ws://${hostname}:${config.wssPort}" };`,
+        `window.__CONFIG = { WS_URL: "ws://${hostname}:${config.wssPort}", INTERACTIVE_MODE_TIMEOUT_SEC: ${config.interactiveModeTimeoutSec} };`,
       );
     });
 
@@ -65,6 +65,7 @@ class App {
     const transactionValidator = new WebsocketTransactionValidator({
       wssPort: config.wssPort,
       logger: this.logger,
+      timeoutMs: config.interactiveModeTimeoutSec * 1000,
     });
     this.proxy = new ValidatingProxy(transactionValidator, transactionBuilder, {
       proxyPort: config.proxyPort,
