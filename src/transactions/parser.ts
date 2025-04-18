@@ -1,22 +1,26 @@
 import { TypedTransaction } from "web3-eth-accounts";
-import { AbiItem, sha3 } from "web3-utils";
+import { sha3 } from "web3-utils";
 import { decodeParameters } from "web3-eth-abi";
 import { ContractInfo, TransactionType } from "./transaction.js";
-import { AbiFragment, Contract, ContractAbi } from "web3";
+import { AbiFragment, ContractAbi } from "web3";
 import { bufferToHex } from "ethereumjs-util";
+import { standardABIs } from "./standard-abis.js";
 
 export class ContractParser {
   private authorizedAddresses: Map<string, string> = new Map();
-  private knownContracts: Map<string, { name: string; abi?: AbiItem }> =
-    new Map();
-  private contractInstances: Map<string, Contract<ContractAbi>> = new Map();
+  private userDefinedContracts: Map<
+    string,
+    { name: string; abi?: ContractAbi }
+  > = new Map();
+  private standardABIs: Map<string, { name: string; abi: ContractAbi }> =
+    new Map(standardABIs.map((item) => [item.name, item]));
 
   public loadConfig(
     authorizedAddresses: Map<string, string>,
-    knownContracts: Map<string, { name: string; abi?: AbiItem }>,
+    knownContracts: Map<string, { name: string; abi?: ContractAbi }>,
   ): void {
     this.authorizedAddresses = authorizedAddresses;
-    this.knownContracts = knownContracts;
+    this.userDefinedContracts = knownContracts;
   }
 
   public getContractInfo(
@@ -29,32 +33,26 @@ export class ContractParser {
     }
     if (txType === "contract-call") {
       const contractAddress = transaction.to?.toString()?.toLowerCase() || "";
-      const knownContract = this.knownContracts.get(contractAddress);
-
-      if (!knownContract || !knownContract.abi) {
-        // TODO: predefine standards ABI ERC-20 ...
-        return null;
-      }
-
-      const knownAbi = Array.isArray(knownContract.abi)
-        ? knownContract.abi
-        : [knownContract.abi];
-
-      let contractInstance = this.contractInstances.get(contractAddress);
-      if (!contractInstance) {
-        contractInstance = new Contract(
-          knownAbi,
-          contractAddress,
-        ) as Contract<ContractAbi>;
-        this.contractInstances.set(
-          contractAddress.toLowerCase(),
-          contractInstance,
-        );
-      }
+      const userDefinedContract =
+        this.userDefinedContracts.get(contractAddress);
 
       const methodData = bufferToHex(Buffer.from(transaction.data));
       const methodSig = methodData.slice(0, 10);
-      const methodAbi = this.getMethodAbi(knownAbi, methodSig);
+
+      const knownContract =
+        userDefinedContract && userDefinedContract.abi
+          ? userDefinedContract
+          : this.findStandardContract(methodSig);
+
+      if (!knownContract) {
+        return null;
+      }
+
+      const knownContractABI: ContractAbi = Array.isArray(knownContract.abi)
+        ? knownContract.abi
+        : [knownContract.abi];
+
+      const methodAbi = this.getMethodAbi(knownContractABI, methodSig);
 
       if (methodAbi && methodAbi.type === "function") {
         const inputTypes = methodAbi.inputs?.map((input) => input.type) || [];
@@ -70,17 +68,10 @@ export class ContractParser {
       }
     }
 
-    return {
-      address: transaction.to?.toString() || "",
-      labelAddress: this.knownContracts.get(
-        transaction.to?.toString().toLowerCase() || "",
-      )?.name,
-      functionName: "unknown",
-      args: [],
-    };
+    return null;
   }
 
-  private getMethodAbi(knownAbi: AbiItem[], methodSig: string) {
+  private getMethodAbi(knownAbi: ContractAbi, methodSig: string) {
     return knownAbi.find((abi) => {
       if (abi.type !== "function") return false;
       const name = "name" in abi ? abi.name : "";
@@ -111,5 +102,11 @@ export class ContractParser {
         label,
       };
     });
+  }
+
+  private findStandardContract(methodSig: string) {
+    return Array.from(this.standardABIs.entries()).find(([, abi]) =>
+      this.getMethodAbi(abi.abi, methodSig),
+    )?.[1];
   }
 }

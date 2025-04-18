@@ -66,6 +66,7 @@ export class ValidatingProxy {
       let rpcReq: JsonRpcRequest | null = null;
       try {
         rpcReq = JSON.parse(body) as JsonRpcRequest;
+        this.logger.debug({ rpcReq }, `RPC request received`);
         const transaction = this.transactionBuilder.fromJsonRpcRequest(rpcReq);
         if (!transaction) {
           this.acceptRequest(rpcReq, req, res);

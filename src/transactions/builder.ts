@@ -1,29 +1,26 @@
 import { ParsedData, WrappedTransaction } from "./transaction.js";
 import assert from "node:assert";
 import { TransactionFactory, TypedTransaction } from "web3-eth-accounts";
-import { JsonRpcRequest } from "web3";
+import { ContractAbi, JsonRpcRequest } from "web3";
 import { toBuffer } from "ethereumjs-util";
 import { ContractParser } from "./parser.js";
 import * as fs from "node:fs";
 import { getTransactionType } from "../utils/transaction.js";
 import { Logger } from "../utils/logger.js";
-import { AbiItem } from "web3-utils";
 
 export interface TransactionBuilderConfig {
   authorizedAddressesPath: string;
   knownContractsPath: string;
 }
 
-export type ContractItem = {
-  name: string;
-  abi?: AbiItem;
-};
-
 export class TransactionBuilder {
   private isLoaded = false;
 
   private authorizedAddresses = new Map<string, string>();
-  private knownContracts = new Map<string, ContractItem>();
+  private knownContracts = new Map<
+    string,
+    { name: string; abi?: ContractAbi }
+  >();
 
   constructor(
     private contractParser: ContractParser,
@@ -43,7 +40,7 @@ export class TransactionBuilder {
       );
       const knownContractsData = JSON.parse(
         await fs.promises.readFile(this.config.knownContractsPath, "utf-8"),
-      );
+      ) as Record<string, { name: string; abi?: ContractAbi }>;
 
       this.authorizedAddresses = new Map(
         authorizedAddressesData.map(([address, name]) => [
@@ -55,8 +52,8 @@ export class TransactionBuilder {
         Object.entries(knownContractsData).map(([address, contractData]) => [
           address.toLowerCase(),
           {
-            name: (contractData as ContractItem).name,
-            abi: (contractData as ContractItem).abi,
+            name: contractData.name,
+            abi: contractData.abi,
           },
         ]),
       );
