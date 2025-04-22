@@ -1,6 +1,9 @@
 /** @type {import('jest').Config} */
 const config = {
-  testMatch: ["<rootDir>/src/**/*.spec.ts"],
+  testMatch: [
+    "<rootDir>/src/**/*.spec.ts",
+    "<rootDir>/test/integration/**/*.spec.ts",
+  ],
   moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.jsx?$": "$1",

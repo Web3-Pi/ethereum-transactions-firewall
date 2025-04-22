@@ -84,7 +84,7 @@ describe("Proxy", () => {
       transactionMock,
     );
     when(transactionValidatorMock.validate(anything())).thenReject(
-      new ValidationError("Rejected by user"),
+      new ValidationError("Rejected by user", transactionMock.dto),
     );
 
     const response = await rpcRequest();

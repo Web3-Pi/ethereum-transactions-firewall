@@ -1,11 +1,12 @@
 import { Logger } from "../utils/logger.js";
 import { Server, IncomingMessage, ServerResponse, createServer } from "http";
-import { TransactionValidator } from "./validator.js";
+import { TransactionValidator, ValidationError } from "./validator.js";
 import { TransactionBuilder } from "../transactions/builder.js";
 import { JsonRpcRequest } from "web3";
 import fetch from "node-fetch";
 import { normalizeHeaders } from "../utils/http.js";
 import { hostname } from "node:os";
+import { WrappedTransaction } from "../transactions/transaction.js";
 
 export interface ProxyConfig {
   proxyPort: number;
@@ -62,45 +63,64 @@ export class ValidatingProxy {
 
     req.on("data", (chunk) => (body += chunk));
 
-    req.on("end", () => {
-      let rpcReq: JsonRpcRequest | null = null;
+    req.on("end", async () => {
       try {
-        rpcReq = JSON.parse(body) as JsonRpcRequest;
-        this.logger.debug({ rpcReq }, `RPC request received`);
-        const transaction = this.transactionBuilder.fromJsonRpcRequest(rpcReq);
-        if (!transaction) {
-          this.acceptRequest(rpcReq, req, res);
-          return;
-        }
-        this.logger.info(
-          { transaction: transaction.dto },
-          `Transaction received`,
-        );
-        this.transactionValidator
-          .validate(transaction)
-          .then(() => {
-            this.acceptRequest(rpcReq, req, res);
-            this.logger.info(
-              { transaction: transaction.dto },
-              `Transaction accepted`,
-            );
-          })
-          .catch((error) => {
-            this.rejectRequest(res, error);
-            this.logger.warn(
-              { transaction: transaction.dto, reason: error?.message },
-              `Transaction rejected`,
-            );
+        const parsedData = JSON.parse(body) as
+          | JsonRpcRequest[]
+          | JsonRpcRequest;
+        const transactions: WrappedTransaction[] = [];
+
+        if (Array.isArray(parsedData)) {
+          this.logger.debug(
+            { batchSize: parsedData.length },
+            `Batch RPC requests received`,
+          );
+          parsedData.forEach((rpcReq) => {
+            const transaction =
+              this.transactionBuilder.fromJsonRpcRequest(rpcReq);
+            if (transaction) {
+              transactions.push(transaction);
+            }
           });
+        } else {
+          this.logger.debug({ rpcReq: parsedData }, `RPC request received`);
+          const transaction =
+            this.transactionBuilder.fromJsonRpcRequest(parsedData);
+          if (transaction) {
+            transactions.push(transaction);
+          }
+        }
+        if (!transactions.length) {
+          return this.acceptRequest(parsedData, req, res);
+        }
+
+        for (const transaction of transactions) {
+          await this.transactionValidator.validate(transaction);
+          this.logger.info(
+            { transaction: transaction.dto },
+            `Transaction accepted`,
+          );
+        }
+        await this.acceptRequest(parsedData, req, res);
       } catch (error) {
         this.rejectRequest(res, error as Error);
-        this.logger.error(error, `Something went wrong. Transaction rejected.`);
+        if (error instanceof ValidationError) {
+          this.logger.warn(
+            { transaction: error.tx, reason: error?.message },
+            `Transaction rejected`,
+          );
+        } else {
+          this.logger.error(
+            error,
+            `Something went wrong. Transaction rejected.`,
+          );
+        }
       }
     });
   }
 
   private async acceptRequest(
-    data: JsonRpcRequest | null,
+    data: JsonRpcRequest | JsonRpcRequest[] | null,
     req: IncomingMessage,
     res: ServerResponse,
   ) {

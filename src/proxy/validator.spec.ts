@@ -72,7 +72,10 @@ describe("TransactionValidator", () => {
       message: "Rejected",
     });
     await expect(validator.validate(testTx)).rejects.toThrow(
-      new ValidationError("Transaction validation failed. Rejected"),
+      new ValidationError(
+        "Transaction validation failed. Rejected",
+        testTx.dto,
+      ),
     );
   });
 });

@@ -1,4 +1,7 @@
-import { WrappedTransaction } from "../transactions/transaction.js";
+import {
+  TransactionPayload,
+  WrappedTransaction,
+} from "../transactions/transaction.js";
 import { WebSocketRequestSender } from "../websocket/request-sender.js";
 import { Logger } from "../utils/logger.js";
 
@@ -20,7 +23,14 @@ export interface WebsocketTransactionValidatorConfig {
   timeoutMs?: number;
 }
 
-export class ValidationError extends Error {}
+export class ValidationError extends Error {
+  constructor(
+    msg: string,
+    public tx: TransactionPayload,
+  ) {
+    super(msg);
+  }
+}
 
 export class WebsocketTransactionValidator extends TransactionValidator {
   private wss: WebSocketRequestSender;
@@ -66,6 +76,7 @@ export class WebsocketTransactionValidator extends TransactionValidator {
     if (response?.result === false) {
       throw new ValidationError(
         `Transaction validation failed. ${response?.message || ""}`,
+        tx.dto,
       );
     }
 

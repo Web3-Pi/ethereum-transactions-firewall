@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-interface Config {
+export interface Config {
   serverPort: number;
   proxyPort: number;
   wssPort: number;
