@@ -96,7 +96,7 @@ describe("Firewall proxy tests", function () {
         new Error("Transaction rejected"),
       );
       await proxy.listen();
-      const erc20Instance = testContracts.erc20.create(wallets[0]);
+      const erc20Instance = testContracts.erc20.create(wallets[1]);
       await expect(
         erc20Instance.transfer(wallets[1].address, ethers.parseUnits("7")),
       ).rejects.toThrow(
@@ -115,7 +115,7 @@ describe("Firewall proxy tests", function () {
       });
 
       await proxy.listen();
-      const erc20Contract = testContracts.erc20.create(wallets[0]);
+      const erc20Contract = testContracts.erc20.create(wallets[2]);
       const tx = await erc20Contract.transfer(
         "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
         ethers.parseUnits("7"),
@@ -125,7 +125,7 @@ describe("Firewall proxy tests", function () {
       verify(transactionValidatorMock.validate(anything())).once();
       expect(capturedVerifyingTx).toBeDefined();
       expect(capturedVerifyingTx?.dto.to).toBe(contractAddress);
-      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Wallet 1");
+      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Account #2");
       expect(capturedVerifyingTx?.dto.txType).toEqual("contract-call");
       expect(capturedVerifyingTx?.dto.contractInfo).toEqual({
         address: contractAddress,
@@ -156,7 +156,7 @@ describe("Firewall proxy tests", function () {
       });
 
       await proxy.listen();
-      const nftContract = testContracts.erc721.create(wallets[0]);
+      const nftContract = testContracts.erc721.create(wallets[3]);
       const tx = await nftContract.safeTransferFrom(
         "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
         "0xdE07073781CADaD26053b6d36D8768f0bD283751",
@@ -167,7 +167,7 @@ describe("Firewall proxy tests", function () {
       verify(transactionValidatorMock.validate(anything())).once();
       expect(capturedVerifyingTx).toBeDefined();
       expect(capturedVerifyingTx?.dto.to).toBe(contractAddress);
-      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Wallet 1");
+      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Account #3");
       expect(capturedVerifyingTx?.dto.txType).toEqual("contract-call");
       expect(capturedVerifyingTx?.dto.contractInfo).toEqual({
         address: contractAddress,
@@ -204,7 +204,7 @@ describe("Firewall proxy tests", function () {
       });
 
       await proxy.listen();
-      const erc1155Contract = testContracts.erc1155.create(wallets[0]);
+      const erc1155Contract = testContracts.erc1155.create(wallets[4]);
       const tx = await erc1155Contract.safeTransferFrom(
         "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
         "0xdE07073781CADaD26053b6d36D8768f0bD283751",
@@ -218,7 +218,7 @@ describe("Firewall proxy tests", function () {
       verify(transactionValidatorMock.validate(anything())).once();
       expect(capturedVerifyingTx).toBeDefined();
       expect(capturedVerifyingTx?.dto.to).toBe(contractAddress);
-      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Wallet 1");
+      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Account #4");
       expect(capturedVerifyingTx?.dto.txType).toEqual("contract-call");
       expect(capturedVerifyingTx?.dto.contractInfo).toEqual({
         address: contractAddress,
