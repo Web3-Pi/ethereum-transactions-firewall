@@ -8,8 +8,6 @@ import { Logger } from "../../src/utils/logger.js";
 import { anything, instance, mock, when } from "ts-mockito";
 import { testContracts, wallets } from "../fixtures/contracts.js";
 import { ethers } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types/index.js";
-import { resetHardhatContext } from "hardhat/plugins-testing.js";
 import { ChildProcess, spawn } from "node:child_process";
 
 const __filename = fileURLToPath(import.meta.url);
