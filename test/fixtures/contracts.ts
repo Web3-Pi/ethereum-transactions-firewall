@@ -21,8 +21,9 @@ export const createContract = (
 };
 
 const generateTestAddresses = (count: number) => {
-  return Array.from({ length: count }, (_, i) => {
-    const address = `0x${i.toString(16).padStart(40, "0")}`;
+  return Array.from({ length: count }, () => {
+    const randomBytes = ethers.randomBytes(20);
+    const address = ethers.hexlify(randomBytes);
     return ethers.getAddress(address);
   });
 };
