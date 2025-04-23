@@ -68,8 +68,8 @@ describe("Transaction Builder", () => {
         value: "7",
         data: "0x",
         txType: "transfer",
-        labelFrom: "unknown",
-        labelTo: "unknown",
+        labelFrom: "Account #0",
+        labelTo: "Account #1",
       }),
     );
   });
