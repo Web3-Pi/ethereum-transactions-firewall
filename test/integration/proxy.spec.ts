@@ -47,6 +47,13 @@ describe("Firewall proxy tests", function () {
   afterAll(async () => {
     if (hardhatProcess) {
       hardhatProcess.kill();
+      await new Promise<void>((resolve) => {
+        const timeoutId = setTimeout(() => resolve(), 3000);
+        hardhatProcess.on("exit", () => {
+          clearTimeout(timeoutId);
+          resolve();
+        });
+      });
     }
   });
 
