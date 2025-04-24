@@ -26,7 +26,7 @@ describe("Firewall proxy tests", function () {
   let hardhatProcess: ChildProcess;
 
   beforeAll(async () => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
       hardhatProcess = spawn("npx", ["hardhat", "node"], {
         stdio: ["ignore", "pipe", "pipe"],
         shell: true,
