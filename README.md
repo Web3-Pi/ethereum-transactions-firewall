@@ -2,12 +2,9 @@
 
 This simple tool increases interaction security with Ethereum when accessed via a local RPC endpoint. It should be used with the [Ethereum On Raspberry Pi](https://github.com/Web3-Pi/Ethereum-On-Raspberry-Pi) suite.
 
-
-
 ## Setup
 
 Log in to your Raspberry Pi and follow the instructions below.
-
 
 ### Node.js
 
@@ -23,6 +20,7 @@ sudo apt install npm
 Clone the current repository to your working directory and change the current directory to the working directory. Install dependencies by running the command: 
 ```bash
 npm install
+npm install --prefix frontend
 ```
 
 Copy template of environment file _.env_:
@@ -53,6 +51,8 @@ description of the available variables that you can set:
 
 - `KNOWN_CONTRACTS_PATH`: Path to the file containing information about known contracts mapped to their labels and abi.  
   **Default:** `known_contracts.json`
+- `INTERACTIVE_MODE_TIMEOUT_SEC`: Timeout duration for user decision in interactive mode (in seconds).  
+  **Default:** `60`
 
 Be sure to restart the application after making changes to the `.env` file for them to take effect.
 
@@ -180,6 +180,27 @@ If you open the webpage associated with the firewall in a browser (i.e., `http:/
 
 As [Ethereun On Raspberry Pi](https://github.com/Web3-Pi/Ethereum-On-Raspberry-Pi) devices are used with the Ethereum mainnet, the easiest way to interact with them would be through Metamask. It is fine during regular use but not helpful during testing.
 
+### Unit tests
+
+This project uses the Jest testing framework for unit tests. To run the unit tests, execute the following command in the
+terminal:
+
+```bash
+npm run test:unit
+```
+
+### Integration tests
+
+Integration tests for this project might involve:
+
+- Simulating transaction requests and verifying correct forwarding or blocking behavior.
+- Verifying that the validator interface accurately displays transaction details for user decisions.
+
+To run the integration tests, execute:
+
+```bash
+npm run test:integration
+```
 
 ### Sandbox Transactions
 
@@ -195,32 +216,9 @@ Currently, the following requests are submitted to the RPC endpoint:
 5 - WRITE: requestErc20TransferTxn - GLM
 ```
 
-#### Configuration
-
-The testing framework sends transactions to a predefined RPC endpoint (i.e., a running Ethereum Transaction Firewall service). This endpoint can be specified in a file _test/txnemitter.js_, which looks like this:
-```node
-const process = require('process');
-const path = require('path');
-
-process.chdir(path.join(__dirname, '..'));
-
-const { proxy_port } = require('../config/config');
-const { DefaultTriggeredRequests } = require('./sandbox/requestgenerator');
-
-const trigger = new DefaultTriggeredRequests(`http://localhost:${proxy_port}`);
-```
-
-To change the RPC endpoint, change the line:
-```node
-const trigger = new DefaultTriggeredRequests(`http://localhost:${proxy_port}`);
-```
-by adding the address of the correct RPC endpoint.
-
-
-#### Running
 
 With the correct RPC endpoint provided, run the tester from the main working dir by executing the following command:
 ```bash
-node test/txnemitter.js
+npm run sandbox
 ```
-and send requests by pressing keys from 1 to 6.
+and send requests by pressing keys from 1 to 5.

@@ -24,7 +24,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "jest",
     "test:unit": "jest src",
-    "test:integration": "jest test/integration --detectOpenHandles",
+    "test:integration": "jest test/integration",
     "hardhat:start": "npx hardhat node",
     "sandbox": "tsx test/sandbox/txn-emitter.ts"
   },
