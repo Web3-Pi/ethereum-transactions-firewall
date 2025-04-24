@@ -46,13 +46,31 @@ describe("Firewall proxy tests", function () {
 
   afterAll(async () => {
     if (hardhatProcess) {
-      hardhatProcess.kill();
-      await new Promise<void>((resolve) => {
-        const timeoutId = setTimeout(() => resolve(), 3000);
-        hardhatProcess.on("exit", () => {
-          clearTimeout(timeoutId);
-          resolve();
-        });
+      hardhatProcess.stdout?.destroy();
+      hardhatProcess.stderr?.destroy();
+      hardhatProcess.kill("SIGTERM");
+
+      return new Promise<void>((resolve) => {
+        let resolved = false;
+
+        const finalize = () => {
+          if (!resolved) {
+            resolved = true;
+            resolve();
+          }
+        };
+        hardhatProcess?.on("exit", finalize);
+        const timeoutId = setTimeout(() => {
+          try {
+            if (hardhatProcess?.killed === false) {
+              hardhatProcess.kill("SIGKILL");
+            }
+          } finally {
+            finalize();
+          }
+        }, 3000);
+
+        hardhatProcess?.on("exit", () => clearTimeout(timeoutId));
       });
     }
   });
