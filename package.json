@@ -25,7 +25,8 @@
     "test": "jest",
     "test:unit": "jest src",
     "test:integration": "jest test/integration",
-    "hardhat:start": "npx hardhat node"
+    "hardhat:start": "npx hardhat node",
+    "sandbox": "tsx test/sandbox/txn-emitter.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
