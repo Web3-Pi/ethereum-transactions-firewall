@@ -12,8 +12,10 @@ export class ContractParser {
     string,
     { name: string; abi?: ContractAbi }
   > = new Map();
-  private standardABIs: Map<string, { name: string; abi: ContractAbi }> =
-    new Map(standardABIs.map((item) => [item.name, item]));
+  private standardABIs: Map<
+    string,
+    { name: string; abi: ContractAbi; description: string }
+  > = new Map(standardABIs.map((item) => [item.name, item]));
 
   public loadConfig(
     authorizedAddresses: Map<string, string>,
@@ -28,7 +30,7 @@ export class ContractParser {
     txType: TransactionType,
   ): ContractInfo | null {
     if (txType === "contract-creation") {
-      // TODO
+      // TODO: recognize constructor function in known contracts abi
       return null;
     }
     if (txType === "contract-call") {
@@ -105,8 +107,14 @@ export class ContractParser {
   }
 
   private findStandardContract(methodSig: string) {
-    return Array.from(this.standardABIs.entries()).find(([, abi]) =>
+    const contract = Array.from(this.standardABIs.entries()).find(([, abi]) =>
       this.getMethodAbi(abi.abi, methodSig),
     )?.[1];
+    if (contract) {
+      return {
+        name: `Possible interface: ${contract.name} (${contract.description})`,
+        abi: contract.abi,
+      };
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { instance, mock, reset, when, anything } from "ts-mockito";
+import { instance, mock, reset, when, anything, verify } from "ts-mockito";
 import { ValidatingProxy } from "./proxy.js";
 import { ValidationError, WebsocketTransactionValidator } from "./validator.js";
 import { TransactionBuilder } from "../transactions/builder.js";
@@ -22,11 +22,11 @@ describe("Proxy", () => {
 
   let proxy: ValidatingProxy;
 
-  const rpcRequest = async (method = "POST") =>
+  const rpcRequest = async (method = "POST", body: object = { test: "?" }) =>
     fetch(`http://localhost:${configMock.proxyPort}`, {
       method,
       headers: { "Content-Type": "application/json", Connection: "close" },
-      body: JSON.stringify({ test: "?" }),
+      body: JSON.stringify(body),
     });
 
   nock(configMock.endpointUrl)
@@ -120,5 +120,24 @@ describe("Proxy", () => {
     nock(configMock.endpointUrl).options("/").reply(200);
     const response = await rpcRequest("OPTIONS");
     expect(response.status).toBe(200);
+  });
+
+  test("should process batch of rpc requests", async () => {
+    when(transactionBuilderMock.fromJsonRpcRequest(anything())).thenReturn(
+      transactionMock,
+    );
+    when(transactionValidatorMock.validate(anything())).thenResolve(true);
+    const response = await rpcRequest("POST", [
+      { jsonrpc: "2.0", id: 1 },
+      { jsonrpc: "2.0", id: 2 },
+    ]);
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data).toEqual({
+      id: 1,
+      jsonrpc: "2.0",
+      result: "0xSuccess",
+    });
+    verify(transactionValidatorMock.validate(anything())).twice();
   });
 });

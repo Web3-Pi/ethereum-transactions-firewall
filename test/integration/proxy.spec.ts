@@ -106,6 +106,47 @@ describe("Firewall proxy tests", function () {
   });
 
   describe("decoding transactions", () => {
+    test("user defined contract", async () => {
+      let capturedVerifyingTx: WrappedTransaction | undefined;
+
+      when(transactionValidatorMock.validate(anything())).thenCall((arg) => {
+        capturedVerifyingTx = arg;
+        return Promise.resolve(true);
+      });
+
+      await proxy.listen();
+      const userContract = testContracts.userDefined.create(wallets[5]);
+      const tx = await userContract.testContract(
+        ethers.parseUnits("7"),
+        "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
+      );
+      await tx.wait();
+      const contractAddress = userContract.target.toString().toLowerCase();
+      verify(transactionValidatorMock.validate(anything())).once();
+      expect(capturedVerifyingTx).toBeDefined();
+      expect(capturedVerifyingTx?.dto.to).toBe(contractAddress);
+      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Account #5");
+      expect(capturedVerifyingTx?.dto.txType).toEqual("contract-call");
+      expect(capturedVerifyingTx?.dto.contractInfo).toEqual({
+        address: contractAddress,
+        args: [
+          {
+            name: "testArg1",
+            type: "uint256",
+            value: "7000000000000000000",
+          },
+          {
+            label: "My test wallet 1",
+            name: "testArg2",
+            type: "address",
+            value: "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
+          },
+        ],
+        functionName: "testContract",
+        labelAddress: "userDefined",
+      });
+    });
+
     test("ERC-20", async () => {
       let capturedVerifyingTx: WrappedTransaction | undefined;
 
@@ -143,11 +184,11 @@ describe("Firewall proxy tests", function () {
           },
         ],
         functionName: "transfer",
-        labelAddress: "ERC20 (Fungible Token)",
+        labelAddress: "Possible interface: ERC20 (Fungible Token)",
       });
     });
 
-    test("ERC-721", async () => {
+    test("ERC-721 (NFT)", async () => {
       let capturedVerifyingTx: WrappedTransaction | undefined;
 
       when(transactionValidatorMock.validate(anything())).thenCall((arg) => {
@@ -191,7 +232,7 @@ describe("Firewall proxy tests", function () {
           },
         ],
         functionName: "safeTransferFrom",
-        labelAddress: "ERC721 (Non-Fungible Token)",
+        labelAddress: "Possible interface: ERC721 (Non-Fungible Token)",
       });
     });
 
@@ -252,7 +293,166 @@ describe("Firewall proxy tests", function () {
           },
         ],
         functionName: "safeTransferFrom",
-        labelAddress: "ERC1155 (Multi Token Standard)",
+        labelAddress: "Possible interface: ERC1155 (Multi Token Standard)",
+      });
+    });
+
+    test("ERC-4626 (Vault)", async () => {
+      let capturedVerifyingTx: WrappedTransaction | undefined;
+
+      when(transactionValidatorMock.validate(anything())).thenCall((arg) => {
+        capturedVerifyingTx = arg;
+        return Promise.resolve(true);
+      });
+
+      await proxy.listen();
+      const vaultContract = testContracts.erc4626.create(wallets[7]);
+      const tx = await vaultContract.deposit(
+        ethers.parseUnits("10"),
+        "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
+      );
+      await tx.wait();
+      const contractAddress = vaultContract.target.toString().toLowerCase();
+      verify(transactionValidatorMock.validate(anything())).once();
+      expect(capturedVerifyingTx).toBeDefined();
+      expect(capturedVerifyingTx?.dto.to).toBe(contractAddress);
+      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Account #7");
+      expect(capturedVerifyingTx?.dto.txType).toEqual("contract-call");
+      expect(capturedVerifyingTx?.dto.contractInfo).toEqual({
+        address: contractAddress,
+        args: [
+          {
+            name: "assets",
+            type: "uint256",
+            value: "10000000000000000000",
+          },
+          {
+            label: "My test wallet 1",
+            name: "receiver",
+            type: "address",
+            value: "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
+          },
+        ],
+        functionName: "deposit",
+        labelAddress: "Possible interface: ERC4626 (Tokenized Vault)",
+      });
+    });
+
+    test("ERC-20-Burnable", async () => {
+      let capturedVerifyingTx: WrappedTransaction | undefined;
+
+      when(transactionValidatorMock.validate(anything())).thenCall((arg) => {
+        capturedVerifyingTx = arg;
+        return Promise.resolve(true);
+      });
+
+      await proxy.listen();
+      const burnableTokenContract = testContracts.erc20burnable.create(
+        wallets[8],
+      );
+      const tx = await burnableTokenContract.burn(ethers.parseUnits("5"));
+      await tx.wait();
+      const contractAddress = burnableTokenContract.target
+        .toString()
+        .toLowerCase();
+      verify(transactionValidatorMock.validate(anything())).once();
+      expect(capturedVerifyingTx).toBeDefined();
+      expect(capturedVerifyingTx?.dto.to).toBe(contractAddress);
+      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Account #8");
+      expect(capturedVerifyingTx?.dto.txType).toEqual("contract-call");
+      expect(capturedVerifyingTx?.dto.contractInfo).toEqual({
+        address: contractAddress,
+        args: [
+          {
+            name: "value",
+            type: "uint256",
+            value: "5000000000000000000",
+          },
+        ],
+        functionName: "burn",
+        labelAddress:
+          "Possible interface: ERC20Burnable (Burnable Token Extension)",
+      });
+    });
+
+    test("Ownable", async () => {
+      let capturedVerifyingTx: WrappedTransaction | undefined;
+
+      when(transactionValidatorMock.validate(anything())).thenCall((arg) => {
+        capturedVerifyingTx = arg;
+        return Promise.resolve(true);
+      });
+
+      await proxy.listen();
+      const ownableContract = testContracts.ownable.create(wallets[10]);
+      const tx = await ownableContract.transferOwnership(
+        "0xdE07073781CADaD26053b6d36D8768f0bD283751",
+      );
+      await tx.wait();
+      const contractAddress = ownableContract.target.toString().toLowerCase();
+      verify(transactionValidatorMock.validate(anything())).once();
+      expect(capturedVerifyingTx).toBeDefined();
+      expect(capturedVerifyingTx?.dto.to).toBe(contractAddress);
+      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Account #10");
+      expect(capturedVerifyingTx?.dto.txType).toEqual("contract-call");
+      expect(capturedVerifyingTx?.dto.contractInfo).toEqual({
+        address: contractAddress,
+        args: [
+          {
+            label: "My test wallet 2",
+            name: "newOwner",
+            type: "address",
+            value: "0xdE07073781CADaD26053b6d36D8768f0bD283751",
+          },
+        ],
+        functionName: "transferOwnership",
+        labelAddress: "Possible interface: Ownable (Ownership Management)",
+      });
+    });
+
+    test("AccessControl", async () => {
+      let capturedVerifyingTx: WrappedTransaction | undefined;
+
+      when(transactionValidatorMock.validate(anything())).thenCall((arg) => {
+        capturedVerifyingTx = arg;
+        return Promise.resolve(true);
+      });
+
+      await proxy.listen();
+      const accessControlContract = testContracts.accesscontrol.create(
+        wallets[11],
+      );
+      const tx = await accessControlContract.grantRole(
+        ethers.keccak256(ethers.toUtf8Bytes("ADMIN_ROLE")),
+        "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
+      );
+      await tx.wait();
+      const contractAddress = accessControlContract.target
+        .toString()
+        .toLowerCase();
+      verify(transactionValidatorMock.validate(anything())).once();
+      expect(capturedVerifyingTx).toBeDefined();
+      expect(capturedVerifyingTx?.dto.to).toBe(contractAddress);
+      expect(capturedVerifyingTx?.dto.labelFrom).toEqual("Account #11");
+      expect(capturedVerifyingTx?.dto.txType).toEqual("contract-call");
+      expect(capturedVerifyingTx?.dto.contractInfo).toEqual({
+        address: contractAddress,
+        args: [
+          {
+            name: "role",
+            type: "bytes32",
+            value: ethers.keccak256(ethers.toUtf8Bytes("ADMIN_ROLE")),
+          },
+          {
+            label: "My test wallet 1",
+            name: "account",
+            type: "address",
+            value: "0x19EE20338a4c4bF8F6aEbc79D9D3Af2A01434119",
+          },
+        ],
+        functionName: "grantRole",
+        labelAddress:
+          "Possible interface: AccessControl (Role-Based Access Control)",
       });
     });
   });

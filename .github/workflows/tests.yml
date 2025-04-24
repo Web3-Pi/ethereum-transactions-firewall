@@ -1,4 +1,4 @@
-name: Base Checks
+name: Tests
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint-format-typecheck:
-    name: Lint, Format & Type Check
+    name: Unit and Integration Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -24,11 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: TypeScript Check
-        run: npx tsc --noEmit
+      - name: Unit Tests
+        run: npm run test:unit
 
-      - name: ESLint Check
-        run: npx eslint .
-
-      - name: Prettier Check
-        run: npx prettier --check "src/**/*.ts"
+      - name: Integration Tests
+        run: npm run test:integration

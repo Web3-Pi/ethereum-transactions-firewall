@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { standardABIs } from "../../src/transactions/standard-abis.js";
+import knownContracts from "../config/known_contracts.json" with { type: "json" };
 
 const provider = new ethers.JsonRpcProvider("http://localhost:19500");
 
@@ -72,6 +73,15 @@ export const testContracts = (() => {
       address,
       abi,
       name: standard.name,
+      create: (signer = wallets[0]) => createContract(address, abi, signer),
+    };
+  });
+
+  Object.entries(knownContracts).forEach(([address, { name, abi }]) => {
+    contracts[name] = {
+      address,
+      abi,
+      name,
       create: (signer = wallets[0]) => createContract(address, abi, signer),
     };
   });
