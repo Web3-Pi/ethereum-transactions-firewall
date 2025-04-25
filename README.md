@@ -102,6 +102,26 @@ To set this up, edit the `known_contracts.json` file and add the appropriate map
 }
 ```
 
+#### Predefined contract interfaces
+
+If a contract address is not matched with any entries in the `known_contracts.json` file, the firewall attempts to recognize and match the contract data against a set of predefined standard interfaces:
+
+- **Main standards**:
+  - ERC20 - Standard interface for fungible tokens
+  - ERC721 - Standard interface for non-fungible tokens (NFTs)
+  - ERC1155 - Multi-token standard
+  - ERC4626 - Tokenized vault standard
+
+- **Popular extensions**:
+  - ERC20Burnable - ERC20 extension allowing token burning
+
+- **Popular utility contracts**:
+  - Ownable - Contracts with ownership functionality
+  - AccessControl - Contracts with role-based access control
+
+All these interfaces are imported from the [OpenZeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts) library, which provides secure and community-vetted implementations of common smart contract standards. This automatic detection allows the firewall to properly parse and display transaction data, enhancing security even when interacting with previously undefined contracts.
+
+
 ## Running
 
 ### Overview
