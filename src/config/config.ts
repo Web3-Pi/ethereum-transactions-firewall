@@ -10,6 +10,19 @@ export interface Config {
   authorizedAddressesPath: string;
   knownContractsPath: string;
   interactiveModeTimeoutSec: number;
+  metrics: {
+    mode: string;
+    batchSize: number;
+    savingIntervalMs: number;
+    printingIntervalMs: number;
+    influx: {
+      url: string;
+      username: string;
+      password: string;
+      org: string;
+      bucket: string;
+    };
+  };
 }
 
 const config: Config = {
@@ -24,6 +37,23 @@ const config: Config = {
     process.env.INTERACTIVE_MODE_TIMEOUT_SEC || "30",
     10,
   ),
+  metrics: {
+    mode: process.env.METRICS_MODE || "stdout",
+    batchSize: parseInt(process.env.METRICS_BATCH_SIZE || "100"),
+    savingIntervalMs: parseInt(
+      process.env.METRICS_SAVING_INTERVAL_MS || "10000",
+    ),
+    printingIntervalMs: parseInt(
+      process.env.METRICS_PRINTING_INTERVAL_MS || "60000",
+    ),
+    influx: {
+      url: process.env.METRICS_INFLUX_URL || "http://localhost:8086",
+      username: process.env.METRICS_INFLUX_USERNAME || "admin",
+      password: process.env.METRICS_INFLUX_PASSWORD || "web3-pi-password",
+      org: process.env.METRICS_INFLUX_ORG || "web3-pi",
+      bucket: process.env.METRICS_INFLUX_BUCKET || "web3-pi",
+    },
+  },
 };
 
 export default config;

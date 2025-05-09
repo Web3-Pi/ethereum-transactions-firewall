@@ -7,6 +7,7 @@ import fetch from "node-fetch";
 import { normalizeHeaders } from "../utils/http.js";
 import { hostname } from "node:os";
 import { WrappedTransaction } from "../transactions/transaction.js";
+import { MetricsCollector } from "../metrics/metrics.js";
 
 export interface ProxyConfig {
   proxyPort: number;
@@ -23,6 +24,7 @@ export class ValidatingProxy {
   constructor(
     private transactionValidator: TransactionValidator,
     private transactionBuilder: TransactionBuilder,
+    private metricsCollector?: MetricsCollector,
     config: ProxyConfig,
   ) {
     this.logger = config.logger;
@@ -34,6 +36,7 @@ export class ValidatingProxy {
 
   public async listen(): Promise<void> {
     await this.transactionBuilder.loadConfig();
+    await this.metricsCollector?.init();
     this.server.listen(this.proxyPort, () => {
       this.logger.info(
         {
@@ -50,6 +53,7 @@ export class ValidatingProxy {
   }
 
   public async close(): Promise<void> {
+    this.metricsCollector?.close();
     this.server.close(() => this.logger.info(`Validating Proxy closed`));
   }
 
@@ -100,6 +104,11 @@ export class ValidatingProxy {
             { transaction: transaction.dto },
             `Transaction accepted`,
           );
+          this.metricsCollector?.collect({
+            tx: transaction.dto,
+            date: new Date(),
+            result: "accepted",
+          });
         }
         await this.acceptRequest(parsedData, req, res);
       } catch (error) {
@@ -109,6 +118,11 @@ export class ValidatingProxy {
             { transaction: error.tx, reason: error?.message },
             `Transaction rejected`,
           );
+          this.metricsCollector?.collect({
+            tx: error.tx,
+            date: new Date(),
+            result: "rejected",
+          });
         } else {
           this.logger.error(
             error,
