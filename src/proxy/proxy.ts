@@ -6,10 +6,7 @@ import { JsonRpcRequest } from "web3";
 import fetch from "node-fetch";
 import { normalizeHeaders } from "../utils/http.js";
 import { hostname } from "node:os";
-import {
-  TransactionPayload,
-  WrappedTransaction,
-} from "../transactions/transaction.js";
+import { WrappedTransaction } from "../transactions/transaction.js";
 import { Metrics, MetricsCollector } from "../metrics/metrics.js";
 
 export interface ProxyConfig {
