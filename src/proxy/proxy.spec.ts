@@ -8,11 +8,13 @@ import {
 } from "../transactions/transaction.js";
 import { Logger } from "../utils/logger.js";
 import nock from "nock";
+import { MetricsCollector } from "../metrics/metrics.js";
 
 describe("Proxy", () => {
   const transactionValidatorMock = mock(WebsocketTransactionValidator);
   const transactionBuilderMock = mock(TransactionBuilder);
   const transactionMock = mock(WrappedTransaction);
+  const metricsCollectorMock = mock(MetricsCollector);
   when(transactionMock.dto).thenReturn({} as TransactionPayload);
   const configMock = {
     proxyPort: 18555,
@@ -38,9 +40,10 @@ describe("Proxy", () => {
     reset(transactionValidatorMock);
     reset(transactionBuilderMock);
     proxy = new ValidatingProxy(
+      configMock,
       instance(transactionValidatorMock),
       instance(transactionBuilderMock),
-      configMock,
+      instance(metricsCollectorMock),
     );
     await proxy.listen();
   });
