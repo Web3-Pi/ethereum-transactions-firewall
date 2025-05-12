@@ -6,8 +6,11 @@ import { JsonRpcRequest } from "web3";
 import fetch from "node-fetch";
 import { normalizeHeaders } from "../utils/http.js";
 import { hostname } from "node:os";
-import { WrappedTransaction } from "../transactions/transaction.js";
-import { MetricsCollector } from "../metrics/metrics.js";
+import {
+  TransactionPayload,
+  WrappedTransaction,
+} from "../transactions/transaction.js";
+import { Metrics, MetricsCollector } from "../metrics/metrics.js";
 
 export interface ProxyConfig {
   proxyPort: number;
@@ -22,10 +25,10 @@ export class ValidatingProxy {
   private readonly endpointUrl: string;
 
   constructor(
+    config: ProxyConfig,
     private transactionValidator: TransactionValidator,
     private transactionBuilder: TransactionBuilder,
     private metricsCollector?: MetricsCollector,
-    config: ProxyConfig,
   ) {
     this.logger = config.logger;
     this.proxyPort = config.proxyPort;
@@ -95,6 +98,22 @@ export class ValidatingProxy {
           }
         }
         if (!transactions.length) {
+          const metrics = Array.isArray(parsedData)
+            ? parsedData.map((d) => ({
+                jsonRpcId: d.id?.toString(),
+                jsonRpcMethod: d.method,
+                date: new Date(),
+                result: "forwarded",
+              }))
+            : [
+                {
+                  jsonRpcId: parsedData.id?.toString(),
+                  jsonRpcMethod: parsedData.method,
+                  date: new Date(),
+                  result: "forwarded",
+                },
+              ];
+          metrics.forEach((m) => this.metricsCollector?.collect(m as Metrics));
           return this.acceptRequest(parsedData, req, res);
         }
 
@@ -105,6 +124,8 @@ export class ValidatingProxy {
             `Transaction accepted`,
           );
           this.metricsCollector?.collect({
+            jsonRpcId: transaction.jsonRpcId,
+            jsonRpcMethod: "eth_sendRawTransaction",
             tx: transaction.dto,
             date: new Date(),
             result: "accepted",
@@ -119,6 +140,8 @@ export class ValidatingProxy {
             `Transaction rejected`,
           );
           this.metricsCollector?.collect({
+            jsonRpcId: error.jsonRpcId,
+            jsonRpcMethod: "eth_sendRawTransaction",
             tx: error.tx,
             date: new Date(),
             result: "rejected",

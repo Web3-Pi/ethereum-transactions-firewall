@@ -42,23 +42,31 @@ export class InfluxMetricsCollector extends MetricsCollector {
   }
 
   protected async save(metricsBatch: Metrics[]): Promise<void> {
-    const points = metricsBatch.map((metric) =>
-      new Point("tx_firewall_metrics")
+    const points = metricsBatch.map((metric) => {
+      const point = new Point("tx_firewall_metrics")
         .tag("result", metric.result)
+        .tag("jsonRpcMethod", metric.jsonRpcMethod)
         .timestamp(metric.date)
-        .stringField("txId", metric.tx.id)
-        .stringField("from", metric.tx.from)
-        .stringField("to", metric.tx.to || "")
-        .stringField("value", metric.tx.value)
-        .stringField("txType", metric.tx.txType)
-        .stringField("labelFrom", metric.tx.labelFrom)
-        .stringField("labelTo", metric.tx.labelTo),
-    );
+        .stringField("jsonRpcId", metric.jsonRpcId);
+
+      if (metric.tx) {
+        point
+          .stringField("txId", metric.tx.id)
+          .stringField("from", metric.tx.from)
+          .stringField("to", metric.tx.to || "")
+          .stringField("value", metric.tx.value)
+          .stringField("txType", metric.tx.txType)
+          .stringField("labelFrom", metric.tx.labelFrom || "")
+          .stringField("labelTo", metric.tx.labelTo || "");
+      }
+
+      return point;
+    });
 
     try {
       this.writeApi.writePoints(points);
       await this.writeApi.flush();
-      this.logger.info(`Saved ${metricsBatch.length} metrics`);
+      this.logger.debug(`Saved ${metricsBatch.length} metrics`);
     } catch (error) {
       this.logger.error(error, "Error saving metrics to InfluxDB");
     }

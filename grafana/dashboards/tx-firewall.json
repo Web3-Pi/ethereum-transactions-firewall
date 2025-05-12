@@ -18,9 +18,139 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 5,
   "links": [],
   "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_v1"
+      },
+      "description": "Total number of RPC calls",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "alias": "Total RPC Calls",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_v1"
+          },
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "Total Rpc call",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_v1"
+      },
+      "description": "Number of forwarded RPC calls",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "alias": "Forwarded Calls",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_v1"
+          },
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter AND \"result\" = 'forwarded'",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "Forwarded Call (no validation)",
+      "type": "stat"
+    },
     {
       "datasource": {
         "type": "influxdb",
@@ -37,12 +167,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "yellow",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -51,8 +177,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 0,
+        "w": 4,
+        "x": 8,
         "y": 0
       },
       "id": 1,
@@ -76,6 +202,7 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "alias": "Total",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB_v1"
@@ -83,11 +210,10 @@
           "query": "SELECT count(\"txId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "Total"
+          "resultFormat": "time_series"
         }
       ],
-      "title": "Total Transaction Count",
+      "title": "Total Transactions",
       "type": "stat"
     },
     {
@@ -106,12 +232,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "orange",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 5
               }
             ]
           }
@@ -120,8 +242,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 8,
+        "w": 4,
+        "x": 12,
         "y": 0
       },
       "id": 2,
@@ -145,15 +267,15 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "alias": "Rejected",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB_v1"
           },
-          "query": "SELECT count(\"txId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter AND \"result\" = 'rejected'",
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter AND \"result\" = 'rejected'",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "Rejected"
+          "resultFormat": "time_series"
         }
       ],
       "title": "Rejected Transactions",
@@ -175,12 +297,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
-              },
-              {
                 "color": "green",
-                "value": 1
+                "value": null
               }
             ]
           }
@@ -189,7 +307,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
+        "w": 4,
         "x": 16,
         "y": 0
       },
@@ -214,18 +332,94 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "alias": "Forwarded",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB_v1"
           },
-          "query": "SELECT count(\"txId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter AND \"result\" = 'accepted'",
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter AND \"result\" = 'accepted'",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "Accepted"
+          "resultFormat": "time_series"
         }
       ],
       "title": "Accepted Transactions",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_v1"
+      },
+      "description": "Number of errored transactions",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "null": {
+                  "text": "0",
+                  "index": 0
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "alias": "Errored",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_v1"
+          },
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter AND \"result\" = 'error' GROUP BY time($__interval) fill(0)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "Errored Transactions",
       "type": "stat"
     },
     {
@@ -302,7 +496,37 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Accepted"
+              "options": "forwarded"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rejected"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "accepted"
             },
             "properties": [
               {
@@ -317,7 +541,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Rejected"
+              "options": "error"
             },
             "properties": [
               {
@@ -333,8 +557,8 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 24,
-        "x": 0,
+        "w": 12,
+        "x": 12,
         "y": 5
       },
       "id": 4,
@@ -346,7 +570,7 @@
             "sum"
           ],
           "displayMode": "table",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
         "tooltip": {
@@ -358,19 +582,232 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "alias": "$tag_result",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB_v1"
           },
-          "query": "SELECT count(\"txId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter GROUP BY time($__interval), \"result\" fill(null)",
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter  AND \"result\" != 'forwarded' GROUP BY time($__interval), \"result\" fill(null)",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "$tag_result"
+          "resultFormat": "time_series"
         }
       ],
-      "title": "Web3 Pi Tx Firewall Transactions by Validation Status",
+      "title": "Transactions by Validation Status",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_v1"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Number of Calls",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "alias": "$tag_jsonRpcMethod",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_v1"
+          },
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter GROUP BY time($__interval), \"jsonRpcMethod\" fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "RPC Calls by Method Type",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB_v1"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rejected"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "accepted"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 5,
+      "options": {
+        "displayLabels": [
+          "percent",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "alias": "$tag_result",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB_v1"
+          },
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter AND \"result\" != 'forwarded' GROUP BY \"result\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "Transaction Breakdown by Status",
+      "type": "piechart"
     },
     {
       "datasource": {
@@ -399,7 +836,7 @@
         "x": 0,
         "y": 14
       },
-      "id": 5,
+      "id": 8,
       "options": {
         "displayLabels": [
           "percent",
@@ -407,7 +844,7 @@
         ],
         "legend": {
           "displayMode": "list",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
         "pieType": "pie",
@@ -427,109 +864,19 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "alias": "$tag_jsonRpcMethod",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB_v1"
           },
-          "query": "SELECT count(\"txId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter GROUP BY \"result\"",
+          "query": "SELECT count(\"jsonRpcId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter GROUP BY \"jsonRpcMethod\"",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "$tag_result"
+          "resultFormat": "time_series"
         }
       ],
-      "title": "Transaction Breakdown by Status",
+      "title": "RPC Methods Distribution",
       "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "InfluxDB_v1"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 14
-      },
-      "id": 6,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "11.5.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB_v1"
-          },
-          "query": "SELECT count(\"txId\") FROM \"tx_firewall_metrics\" WHERE $timeFilter GROUP BY time(1d), \"result\" fill(0)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "$tag_result"
-        }
-      ],
-      "title": "Daily Transaction Count",
-      "type": "barchart"
     },
     {
       "datasource": {
@@ -581,13 +928,21 @@
                 "value": [
                   {
                     "options": {
-                      "accepted": {
-                        "color": "green",
+                      "forwarded": {
+                        "color": "purple",
                         "index": 0
                       },
                       "rejected": {
-                        "color": "red",
+                        "color": "orange",
                         "index": 1
+                      },
+                      "accepted": {
+                        "color": "green",
+                        "index": 2
+                      },
+                      "error": {
+                        "color": "red",
+                        "index": 3
                       }
                     },
                     "type": "value"
@@ -599,7 +954,7 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 22
@@ -624,7 +979,7 @@
             "type": "influxdb",
             "uid": "InfluxDB_v1"
           },
-          "query": "SELECT time, txId, \"from\", \"to\", value, txType, labelFrom, labelTo, result FROM \"tx_firewall_metrics\" WHERE $timeFilter ORDER BY time DESC LIMIT 20",
+          "query": "SELECT time, txId, \"from\", labelFrom, \"to\", labelTo, txType, value, result FROM \"tx_firewall_metrics\" WHERE $timeFilter AND jsonRpcMethod = 'eth_sendRawTransaction' ORDER BY time DESC LIMIT 30",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table"
@@ -637,11 +992,6 @@
   "preload": false,
   "refresh": "5s",
   "schemaVersion": 40,
-  "tags": [
-    "blockchain",
-    "transactions",
-    "firewall"
-  ],
   "templating": {
     "list": []
   },

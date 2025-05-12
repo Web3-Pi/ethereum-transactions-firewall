@@ -76,14 +76,14 @@ export class Firewall {
           ? new InMemoryMetricsCollector(this.config.metrics, this.logger)
           : undefined;
     this.proxy = new ValidatingProxy(
-      transactionValidator,
-      transactionBuilder,
-      metricsCollector,
       {
         proxyPort: this.config.proxyPort,
         endpointUrl: this.config.rpcEndpoint,
         logger: this.logger,
       },
+      transactionValidator,
+      transactionBuilder,
+      metricsCollector,
     );
 
     this.app.listen(this.config.serverPort, () =>

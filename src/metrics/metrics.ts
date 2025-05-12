@@ -2,9 +2,11 @@ import { TransactionPayload } from "../transactions/transaction.js";
 import { Logger } from "../utils/logger.js";
 
 export interface Metrics {
-  tx: TransactionPayload;
+  jsonRpcId?: string;
+  jsonRpcMethod: string;
+  tx?: TransactionPayload;
   date: Date;
-  result: "accepted" | "rejected" | "error" | "unknown";
+  result: "forwarded" | "accepted" | "rejected" | "error" | "unknown";
 }
 
 export type MetricsConfig = {
@@ -91,8 +93,16 @@ export class InMemoryMetricsCollector extends MetricsCollector {
     const rejected = this.metrics.filter(
       (m) => m.result === "rejected" && m.date.toISOString().startsWith(today),
     ).length;
+    const forwarded = this.metrics.filter(
+      (m) => m.result === "forwarded" && m.date.toISOString().startsWith(today),
+    ).length;
     this.logger.info(
-      { accepted, rejected, all: this.metrics.length },
+      {
+        accepted,
+        rejected,
+        forwarded,
+        all: this.metrics.length,
+      },
       `Transaction processing daily summary`,
     );
   }
