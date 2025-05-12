@@ -41,6 +41,7 @@ export class WrappedTransaction {
   constructor(
     public baseTransaction: TypedTransaction,
     private parsedData: ParsedData,
+    public jsonRpcId?: string,
   ) {
     this.id = bufferToHex(Buffer.from(baseTransaction.hash()));
   }

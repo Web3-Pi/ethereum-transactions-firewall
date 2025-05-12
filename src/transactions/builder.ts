@@ -82,7 +82,11 @@ export class TransactionBuilder {
       const baseTransaction = TransactionFactory.fromSerializedData(txData);
       const parsedData = this.getParsedData(baseTransaction);
 
-      return new WrappedTransaction(baseTransaction, parsedData);
+      return new WrappedTransaction(
+        baseTransaction,
+        parsedData,
+        req.id?.toString(),
+      );
     } catch (error) {
       throw new Error(`Failed to decode transaction. ${error}`);
     }

@@ -27,6 +27,7 @@ export class ValidationError extends Error {
   constructor(
     msg: string,
     public tx: TransactionPayload,
+    public jsonRpcId?: string,
   ) {
     super(msg);
   }
@@ -77,6 +78,7 @@ export class WebsocketTransactionValidator extends TransactionValidator {
       throw new ValidationError(
         `Transaction validation failed. ${response?.message || ""}`,
         tx.dto,
+        tx.jsonRpcId,
       );
     }
 

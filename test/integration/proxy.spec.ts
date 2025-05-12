@@ -10,6 +10,7 @@ import { testContracts, wallets } from "../fixtures/contracts.js";
 import { ethers } from "ethers";
 import { ChildProcess, spawn } from "node:child_process";
 import { WrappedTransaction } from "../../src/transactions/transaction.js";
+import { MetricsCollector } from "../../src/metrics/metrics.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(__filename);
@@ -22,6 +23,7 @@ const config = {
 describe("Firewall proxy tests", function () {
   let proxy: ValidatingProxy;
   let transactionValidatorMock: WebsocketTransactionValidator;
+  let metricsCollectorMock: MetricsCollector;
 
   let hardhatProcess: ChildProcess;
 
@@ -87,14 +89,16 @@ describe("Firewall proxy tests", function () {
       instance(loggerMock),
     );
     transactionValidatorMock = mock<WebsocketTransactionValidator>();
+    metricsCollectorMock = mock<MetricsCollector>();
     proxy = new ValidatingProxy(
-      instance(transactionValidatorMock),
-      transactionBuilder,
       {
         proxyPort: config.proxyPort,
         endpointUrl: config.rpcEndpoint,
         logger: instance(loggerMock),
       },
+      instance(transactionValidatorMock),
+      transactionBuilder,
+      instance(metricsCollectorMock),
     );
   });
 

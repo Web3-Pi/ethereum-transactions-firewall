@@ -7,6 +7,7 @@ import fetch from "node-fetch";
 import { normalizeHeaders } from "../utils/http.js";
 import { hostname } from "node:os";
 import { WrappedTransaction } from "../transactions/transaction.js";
+import { Metrics, MetricsCollector } from "../metrics/metrics.js";
 
 export interface ProxyConfig {
   proxyPort: number;
@@ -21,9 +22,10 @@ export class ValidatingProxy {
   private readonly endpointUrl: string;
 
   constructor(
+    config: ProxyConfig,
     private transactionValidator: TransactionValidator,
     private transactionBuilder: TransactionBuilder,
-    config: ProxyConfig,
+    private metricsCollector?: MetricsCollector,
   ) {
     this.logger = config.logger;
     this.proxyPort = config.proxyPort;
@@ -34,6 +36,7 @@ export class ValidatingProxy {
 
   public async listen(): Promise<void> {
     await this.transactionBuilder.loadConfig();
+    await this.metricsCollector?.init();
     this.server.listen(this.proxyPort, () => {
       this.logger.info(
         {
@@ -50,6 +53,7 @@ export class ValidatingProxy {
   }
 
   public async close(): Promise<void> {
+    this.metricsCollector?.close();
     this.server.close(() => this.logger.info(`Validating Proxy closed`));
   }
 
@@ -91,6 +95,22 @@ export class ValidatingProxy {
           }
         }
         if (!transactions.length) {
+          const metrics = Array.isArray(parsedData)
+            ? parsedData.map((d) => ({
+                jsonRpcId: d.id?.toString(),
+                jsonRpcMethod: d.method,
+                date: new Date(),
+                result: "forwarded",
+              }))
+            : [
+                {
+                  jsonRpcId: parsedData.id?.toString(),
+                  jsonRpcMethod: parsedData.method,
+                  date: new Date(),
+                  result: "forwarded",
+                },
+              ];
+          metrics.forEach((m) => this.metricsCollector?.collect(m as Metrics));
           return this.acceptRequest(parsedData, req, res);
         }
 
@@ -100,6 +120,13 @@ export class ValidatingProxy {
             { transaction: transaction.dto },
             `Transaction accepted`,
           );
+          this.metricsCollector?.collect({
+            jsonRpcId: transaction.jsonRpcId,
+            jsonRpcMethod: "eth_sendRawTransaction",
+            tx: transaction.dto,
+            date: new Date(),
+            result: "accepted",
+          });
         }
         await this.acceptRequest(parsedData, req, res);
       } catch (error) {
@@ -109,6 +136,13 @@ export class ValidatingProxy {
             { transaction: error.tx, reason: error?.message },
             `Transaction rejected`,
           );
+          this.metricsCollector?.collect({
+            jsonRpcId: error.jsonRpcId,
+            jsonRpcMethod: "eth_sendRawTransaction",
+            tx: error.tx,
+            date: new Date(),
+            result: "rejected",
+          });
         } else {
           this.logger.error(
             error,

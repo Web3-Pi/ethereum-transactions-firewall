@@ -242,3 +242,66 @@ With the correct RPC endpoint provided, run the tester from the main working dir
 npm run sandbox
 ```
 and send requests by pressing keys from 1 to 5.
+
+
+## Metrics
+
+Ethereum Transactions Firewall supports metrics collection for performance monitoring. By default, metrics are displayed on standard output (stdout), but the system offers additional configuration options.
+
+### Operation Modes
+
+The following metrics collection modes are available:
+- **stdout** - default mode, displays metrics in the console
+- **none** - completely disables metrics collection
+- **influx** - saves metrics to an InfluxDB database
+
+### Environment Configuration
+
+Metrics system configuration is managed through environment variables in the `.env` file:
+
+```ini
+# Sets the metrics collection mode: 'stdout', 'none', or 'influx'
+METRICS_MODE=influx
+
+# Number of metrics entries to batch before sending to InfluxDB
+METRICS_BATCH_SIZE=100
+
+# Interval (in milliseconds) at which metrics are saved to InfluxDB
+METRICS_SAVING_INTERVAL_MS=10000
+
+# Interval (in milliseconds) at which metrics are printed to stdout
+METRICS_PRINTING_INTERVAL_MS=60000
+
+# InfluxDB server URL
+METRICS_INFLUX_URL=http://localhost:8086
+
+# InfluxDB username for authentication
+METRICS_INFLUX_USERNAME=admin
+
+# InfluxDB password for authentication
+METRICS_INFLUX_PASSWORD=web3-pi-password
+
+# InfluxDB organization name
+METRICS_INFLUX_ORG=web3-pi
+
+# InfluxDB bucket (database) name where metrics will be stored
+METRICS_INFLUX_BUCKET=ethonrpi
+```
+
+### Visualization with Grafana
+
+The `grafana/dashboards` directory contains a sample dashboard that visualizes data collected in InfluxDB. This enables monitoring of key performance indicators for the system.
+
+![Sample Grafana Dashboard](doc/grafana.png)
+
+### Development Environment
+
+For development purposes, you can quickly set up the required environment using Docker Compose:
+
+```bash
+docker compose up
+```
+
+This command will launch containers with InfluxDB and Grafana, configured to work with Ethereum Transactions Firewall. Once running, the Grafana panel will be available at http://localhost:3000 (login: admin, password: web3-pi-password).
+
+Remember to properly configure the environment variables in your `.env` file to ensure metrics are correctly saved to InfluxDB.

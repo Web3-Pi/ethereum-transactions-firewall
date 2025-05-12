@@ -8,6 +8,8 @@ import { TransactionBuilder } from "./transactions/builder.js";
 import { ContractParser } from "./transactions/parser.js";
 import { hostname } from "node:os";
 import { Config } from "./config/config.js";
+import { InMemoryMetricsCollector } from "./metrics/metrics.js";
+import { InfluxMetricsCollector } from "./metrics/influx.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,11 +69,22 @@ export class Firewall {
       logger: this.logger,
       timeoutMs: this.config.interactiveModeTimeoutSec * 1000,
     });
-    this.proxy = new ValidatingProxy(transactionValidator, transactionBuilder, {
-      proxyPort: this.config.proxyPort,
-      endpointUrl: this.config.rpcEndpoint,
-      logger: this.logger,
-    });
+    const metricsCollector =
+      this.config.metrics.mode === "influx"
+        ? new InfluxMetricsCollector(this.config.metrics, this.logger)
+        : this.config.metrics.mode === "stdout"
+          ? new InMemoryMetricsCollector(this.config.metrics, this.logger)
+          : undefined;
+    this.proxy = new ValidatingProxy(
+      {
+        proxyPort: this.config.proxyPort,
+        endpointUrl: this.config.rpcEndpoint,
+        logger: this.logger,
+      },
+      transactionValidator,
+      transactionBuilder,
+      metricsCollector,
+    );
 
     this.app.listen(this.config.serverPort, () =>
       this.proxy!.listen().then(() =>
