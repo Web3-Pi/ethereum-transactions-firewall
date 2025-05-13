@@ -29,10 +29,41 @@ cp .env-template .env
 
 ```
 
+### Firewall Mode
+
+The application supports two operational modes for the transaction firewall, which can be configured according to security requirements and operational needs:
+
+#### Interactive Mode
+
+In interactive mode, the application requires active user participation in the transaction decision-making process. Key features of this mode:
+
+  - Each incoming transaction is presented to the user through the interface
+  - The user can review transaction details (destination address, value, data, etc.)
+  - The system awaits an explicit user decision (approve or reject) before continuing processing
+  - Provides the highest level of control, ideal for critical operations or environments requiring human supervision
+  - Uses UI frontend via websocket protocol for real-time communication with the user interface
+
+#### Non-Interactive Mode
+
+Non-interactive mode automates the transaction validation process based on predefined rules, eliminating the need for manual intervention. Key features:
+
+  - Transactions are automatically verified against a predefined set of validation rules
+  - Rules may include checking address allow/deny, value limits, gas fee restrictions, contract type verification, etc.
+  - Validation occurs instantly without delays related to waiting for user response
+  - Ideal for environments requiring high throughput or automation
+
+The choice of mode depends on the specific use case, security level, and operational requirements. Interactive mode offers the highest level of control at the expense of performance, while non-interactive mode provides better scalability and automation at the cost of less flexibility in ad-hoc decision making.
+
+The mode can be configured in the application configuration file using the `FIREWALL_MODE` parameter.
+
 #### Environment
 
 The `.env` file allows you to configure various settings required for the Ethereum Transactions Firewall. Below is a
 description of the available variables that you can set:
+
+- `FIREWALL_MODE`: Operational mode of the firewall. Can be set to either `interactive` for manual transaction approval
+  or `non-interactive` for automated rule-based validation.  
+  **Default:** `interactive`
 
 - `SERVER_PORT`: Port number where the main server will listen for incoming connections.  
   **Default:** `8454`
@@ -51,11 +82,22 @@ description of the available variables that you can set:
 
 - `KNOWN_CONTRACTS_PATH`: Path to the file containing information about known contracts mapped to their labels and abi.  
   **Default:** `known_contracts.json`
+- 
 - `INTERACTIVE_MODE_TIMEOUT_SEC`: Timeout duration for user decision in interactive mode (in seconds).  
   **Default:** `60`
 
+- `ADDRESS_RULES_PATH`: Path to file containing rules for allowed/denied address combinations.  
+  **Default:** `address_rules.json`
+
+- `VALUE_RULES_PATH`: Path to file containing rules for value and gas price limits.  
+  **Default:** `value_rules.json`
+
+- `CONTRACT_RULES_PATH`: Path to file containing rules for contract function calls.  
+  **Default:** `contract_rules.json`
+
 Be sure to restart the application after making changes to the `.env` file for them to take effect.
 
+### Interactive Mode Configuration
 
 #### Authorized addresses
 
@@ -121,6 +163,138 @@ If a contract address is not matched with any entries in the `known_contracts.js
 
 All these interfaces are imported from the [OpenZeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts) library, which provides secure and community-vetted implementations of common smart contract standards. This automatic detection allows the firewall to properly parse and display transaction data, enhancing security even when interacting with previously undefined contracts.
 
+### Non-Interactive Mode Configuration
+
+In non-interactive mode, the application uses three types of rules to validate transactions automatically without user intervention. Each rule type is configured in a separate JSON file, and the paths to these files are specified in the application configuration.
+
+#### Address Rules
+
+Address rules define policies for interactions between specific Ethereum addresses. Each rule specifies whether transactions between particular source and destination addresses should be allowed or denied.
+
+To set this up, edit the `address_rules.json` file and add the rules. For example:
+
+```json
+[
+  {
+    "action": "allow",
+    "from": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+    "to": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    "comment": "Allow transfers to USDT contract"
+  },
+  {
+    "action": "allow",
+    "from": "*",
+    "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+    "comment": "Allow all addresses to interact with Uniswap router"
+  },
+  {
+    "action": "deny",
+    "from": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+    "to": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    "comment": "Deny specific wallet from interacting with DAI contract"
+  }
+]
+```
+**Key features:**
+- `action`: Either "allow" or "deny" to permit or block transactions
+- `from`: Source address, use "*" as a wildcard to match any address
+- `to`: Destination address, use "*" as a wildcard to match any address
+- `comment`: Optional description of the rule purpose (recommended for maintenance)
+
+Transactions are evaluated against each rule sequentially until a match is found. If a transaction matches a "deny" rule, it is rejected. If no matching rule is found, the transaction is rejected by default.
+
+#### Value Rules
+
+Value rules define constraints for transaction values and gas prices. These rules help prevent unwanted high-value transfers or excessive gas fees.
+
+To set this up, edit the `value_rules.json` file and add the rules. For example:
+
+```json
+[
+  {
+    "minValue": 0,
+    "maxValue": 1000000000000000000,
+    "minGasPrice": 1000000000,
+    "maxGasPrice": 50000000000,
+    "comment": "Allow transactions up to 1 ETH with reasonable gas prices"
+  },
+  {
+    "minValue": 0,
+    "maxValue": 10000000000000000000,
+    "minGasPrice": 1000000000,
+    "maxGasPrice": 100000000000,
+    "comment": "Allow transactions up to 10 ETH with higher gas price allowance"
+  },
+  {
+    "minValue": null,
+    "maxValue": null,
+    "minGasPrice": 1000000000,
+    "maxGasPrice": 30000000000,
+    "comment": "Allow any value transaction with standard gas prices"
+  }
+]
+```
+**Key features:**
+- `minValue`: Minimum transaction value in wei (use null for no lower limit)
+- `maxValue`: Maximum transaction value in wei (use null for no upper limit)
+- `minGasPrice`: Minimum gas price in wei (use null for no lower limit)
+- `maxGasPrice`: Maximum gas price in wei (use null for no upper limit)
+- `comment`: Optional description of the rule purpose
+
+For EIP-1559 transactions, the system uses `maxFeePerGas` as the equivalent of `gasPrice` when evaluating these rules.
+
+#### Contract Rules
+
+Contract rules allow or deny interactions with specific smart contract functions. These rules provide fine-grained control over which contract functions can be called.
+
+To set this up, edit the `contract_rules.json` file and add the rules. For example:
+```json
+[
+  {
+    "action": "allow",
+    "functionName": "transfer",
+    "args": {},
+    "comment": "Allow transfer function calls"
+  },
+  {
+    "action": "deny",
+    "functionName": "approve",
+    "args": {},
+    "comment": "Block all approve function calls"
+  },
+  {
+    "action": "allow",
+    "functionName": "swapExactTokensForTokens",
+    "args": {},
+    "comment": "Allow Uniswap swap function"
+  },
+  {
+    "action": "allow",
+    "functionName": "transfer",
+    "args": {
+      "to": "0x1234567890123456789012345678901234567890",
+      "value": "1000000000000000000"
+    },
+    "comment": "Allow transfer of 1 ETH to specific address"
+  },
+  {
+    "action": "deny",
+    "functionName": "approve",
+    "args": {
+      "spender": "*",
+      "amount": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    },
+    "comment": "Block unlimited token approvals"
+  }
+]
+```
+**Key features:**
+- `action`: Either "allow" or "deny" to permit or block transactions
+- `functionName`: Name of the contract function to match
+- `args`: Object mapping parameter names to expected values (empty object matches any arguments)
+- `comment`: Optional description of the rule purpose
+
+- Contract rules are only applied to transactions that interact with smart contracts. Transactions that don't involve contract interactions automatically pass contract rule validation. **Important:** Contract rules require that the ABI for the target contract is pre-defined in the system's known contracts configuration file (specified by `KNOWN_CONTRACTS_PATH` in the environment configuration). Without the appropriate ABI, the contract's function calls cannot be decoded, and as a result, contract rules will not be matched, causing the transaction to be rejected by default.
 
 ## Running
 
@@ -136,7 +310,7 @@ On successful startup, the application will print the following (or similar) out
 ```
 INFO: WebSocket server listening on port 18501
 INFO: Transaction Firewall HTTP Server (to accept/reject transactions): http://eop-1.local:8454
-INFO: Validating Proxy is running
+INFO: Validating Proxy is running in interactive mode
     Proxy address (endpoint to be used in a wallet): "http://eop-1.local:18500"
     Ethereum RPC endpoint used by the firewall: "http://eop-1.local:8545"
 ```

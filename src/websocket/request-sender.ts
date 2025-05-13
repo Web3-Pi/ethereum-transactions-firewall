@@ -3,22 +3,22 @@ import { WebSocketServer as Wss, WebSocket } from "ws";
 
 export interface WebSocketServerConfig {
   wssPort: number;
-  logger: Logger;
   timeoutMs?: number;
 }
 
 export class WebSocketRequestSender {
   private wss: Wss;
   private ws: WebSocket | null = null;
-  private logger: Logger;
   private queryOngoing = false;
   private connectionCounter = 0;
   private activeConnectionId: number | null = null;
   private timeoutMs: number;
 
-  constructor(config: WebSocketServerConfig) {
+  constructor(
+    config: WebSocketServerConfig,
+    private logger: Logger,
+  ) {
     this.wss = new Wss({ port: config.wssPort });
-    this.logger = config.logger;
     this.timeoutMs = config.timeoutMs || 60_000;
     this.wss.on("connection", this.handleConnection.bind(this));
     this.wss.on("listening", () =>

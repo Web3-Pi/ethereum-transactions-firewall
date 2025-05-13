@@ -1,0 +1,23 @@
+[
+  {
+    "minValue": 0,
+    "maxValue": 1000000000000000000,
+    "minGasPrice": 1000000000,
+    "maxGasPrice": 50000000000,
+    "comment": "Allow transactions up to 1 ETH with reasonable gas prices"
+  },
+  {
+    "minValue": 0,
+    "maxValue": 10000000000000000000,
+    "minGasPrice": 1000000000,
+    "maxGasPrice": 100000000000,
+    "comment": "Allow transactions up to 10 ETH with higher gas price allowance"
+  },
+  {
+    "minValue": null,
+    "maxValue": null,
+    "minGasPrice": null,
+    "maxGasPrice": 30000000000,
+    "comment": "Allow any value transaction with standard gas prices"
+  }
+]
