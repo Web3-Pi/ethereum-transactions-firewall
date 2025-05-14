@@ -17,8 +17,8 @@ export interface AddressRule {
 }
 
 export interface ValueRule {
-  maxValue: number;
-  minValue: number;
+  maxValue: number | null;
+  minValue: number | null;
   maxGasPrice: number;
   minGasPrice: number;
   comment?: string;
