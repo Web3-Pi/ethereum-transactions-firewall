@@ -1,0 +1,27 @@
+[
+  {
+    "action": "allow",
+    "from": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+    "to": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    "comment": "Allow transfers to USDT contract"
+  },
+  {
+    "action": "allow",
+    "from": "*",
+    "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+    "comment": "Allow all addresses to interact with Uniswap router"
+  },
+  {
+    "action": "deny",
+    "from": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+    "to": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    "comment": "Deny specific wallet from interacting with DAI contract"
+  },
+  {
+    "action": "allow",
+    "from": "*",
+    "to": "0x75271b9276d9b0104a16dfdcd62d40ba5666a9c3",
+    "comment": "My rule"
+  }
+]
+

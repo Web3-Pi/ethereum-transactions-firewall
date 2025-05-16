@@ -1,19 +1,22 @@
 import "./App.css";
 import backgroundImage from "/src/assets/shielded_logo.png";
-import { ConnectionAlert } from "@/components/ConnectionAllert.tsx";
+import { Alert } from "@/components/Alert";
 import { TransactionDialog } from "@/components/TransactionDialog.tsx";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useEffect, useState } from "react";
 
 type AppConfig = {
   WS_URL?: string;
+  FIREWALL_MODE?: "interactive" | "non-interactive";
   INTERACTIVE_MODE_TIMEOUT_SEC?: number;
 };
+
 function App() {
   const appConfig = (window as Window & { __CONFIG?: AppConfig }).__CONFIG;
   const websocketUrl = appConfig?.WS_URL || "ws://localhost:18501";
   const interactiveModeTimeoutSec =
     appConfig?.INTERACTIVE_MODE_TIMEOUT_SEC || 30;
+  const firewallMode = appConfig?.FIREWALL_MODE || "non-interactive";
 
   const { status, currentTransaction, connect, sendMessage } =
     useWebSocket(websocketUrl);
@@ -67,20 +70,37 @@ function App() {
         backgroundImage: `url(${backgroundImage}), radial-gradient(#1f0D36, #000000)`,
       }}
     >
-      {(status === "error" || status === "disconnected") && (
-        <ConnectionAlert
-          onRetryClick={handleRetryConnection}
+      {firewallMode === "non-interactive" ? (
+        <Alert
           isOpen={isAlertOpen}
           onOpenChange={setIsAlertOpen}
+          title={"Non-interactive mode"}
+          body={
+            "Firewall is set to non-interactive mode. This means all transactions will be automatically accepted or rejected based on predefined rules without user intervention."
+          }
+          buttons={[]}
         />
-      )}
-      {currentTransaction && isDialogOpen && (
-        <TransactionDialog
-          transactionPayload={currentTransaction}
-          onAccept={handleAcceptTransaction}
-          onReject={handleRejectTransaction}
-          timeout={interactiveModeTimeoutSec * 1000}
-        />
+      ) : (
+        <>
+          {(status === "error" || status === "disconnected") && (
+            <Alert
+              isOpen={isAlertOpen}
+              onOpenChange={setIsAlertOpen}
+              buttons={[
+                { label: "Close", variant: "outline" },
+                { label: "Try Again", onClick: handleRetryConnection },
+              ]}
+            />
+          )}
+          {currentTransaction && isDialogOpen && (
+            <TransactionDialog
+              transactionPayload={currentTransaction}
+              onAccept={handleAcceptTransaction}
+              onReject={handleRejectTransaction}
+              timeout={interactiveModeTimeoutSec * 1000}
+            />
+          )}
+        </>
       )}
     </main>
   );

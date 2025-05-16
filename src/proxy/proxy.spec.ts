@@ -1,6 +1,6 @@
 import { instance, mock, reset, when, anything, verify } from "ts-mockito";
 import { ValidatingProxy } from "./proxy.js";
-import { ValidationError, WebsocketTransactionValidator } from "./validator.js";
+import { ValidationError } from "./validator.js";
 import { TransactionBuilder } from "../transactions/builder.js";
 import {
   TransactionPayload,
@@ -9,6 +9,7 @@ import {
 import { Logger } from "../utils/logger.js";
 import nock from "nock";
 import { MetricsCollector } from "../metrics/metrics.js";
+import { WebsocketTransactionValidator } from "./websocket-validator.js";
 
 describe("Proxy", () => {
   const transactionValidatorMock = mock(WebsocketTransactionValidator);
@@ -20,7 +21,8 @@ describe("Proxy", () => {
     proxyPort: 18555,
     endpointUrl: "http://localhost:8545/",
     logger: instance(mock<Logger>()),
-  };
+    mode: "interactive",
+  } as const;
 
   let proxy: ValidatingProxy;
 

@@ -1,7 +1,6 @@
 import { ValidatingProxy } from "../../src/proxy/proxy.js";
 import { TransactionBuilder } from "../../src/transactions/builder.js";
 import { ContractParser } from "../../src/transactions/parser.js";
-import { WebsocketTransactionValidator } from "../../src/proxy/validator.js";
 import { fileURLToPath } from "node:url";
 import path from "path";
 import { Logger } from "../../src/utils/logger.js";
@@ -11,6 +10,7 @@ import { ethers } from "ethers";
 import { ChildProcess, spawn } from "node:child_process";
 import { WrappedTransaction } from "../../src/transactions/transaction.js";
 import { MetricsCollector } from "../../src/metrics/metrics.js";
+import { WebsocketTransactionValidator } from "../../src/proxy/websocket-validator.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(__filename);
@@ -95,6 +95,7 @@ describe("Firewall proxy tests", function () {
         proxyPort: config.proxyPort,
         endpointUrl: config.rpcEndpoint,
         logger: instance(loggerMock),
+        mode: "interactive",
       },
       instance(transactionValidatorMock),
       transactionBuilder,

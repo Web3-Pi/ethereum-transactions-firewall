@@ -1,0 +1,38 @@
+[
+  {
+    "action": "allow",
+    "functionName": "transfer",
+    "args": {},
+    "comment": "Allow transfer function calls"
+  },
+  {
+    "action": "deny",
+    "functionName": "approve",
+    "args": {},
+    "comment": "Block all approve function calls"
+  },
+  {
+    "action": "allow",
+    "functionName": "swapExactTokensForTokens",
+    "args": {},
+    "comment": "Allow Uniswap swap function"
+  },
+  {
+    "action": "allow",
+    "functionName": "transfer",
+    "args": {
+      "to": "0x1234567890123456789012345678901234567890",
+      "value": "1000000000000000000"
+    },
+    "comment": "Allow transfer of 1 ETH to specific address"
+  },
+  {
+    "action": "deny",
+    "functionName": "approve",
+    "args": {
+      "spender": "*",
+      "amount": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    },
+    "comment": "Block unlimited token approvals"
+  }
+]

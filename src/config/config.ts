@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export interface Config {
+  mode: "interactive" | "non-interactive";
   serverPort: number;
   proxyPort: number;
   wssPort: number;
@@ -10,6 +11,9 @@ export interface Config {
   authorizedAddressesPath: string;
   knownContractsPath: string;
   interactiveModeTimeoutSec: number;
+  addressRulesPath: string;
+  valueRulesPath: string;
+  contractRulesPath: string;
   metrics: {
     mode: string;
     batchSize: number;
@@ -26,6 +30,9 @@ export interface Config {
 }
 
 const config: Config = {
+  mode:
+    (process.env.FIREWALL_MODE as "interactive" | "non-interactive") ||
+    "interactive",
   serverPort: parseInt(process.env.SERVER_PORT || "8454", 10),
   proxyPort: parseInt(process.env.PROXY_PORT || "18500", 10),
   wssPort: parseInt(process.env.WSS_PORT || "18501", 10),
@@ -37,6 +44,9 @@ const config: Config = {
     process.env.INTERACTIVE_MODE_TIMEOUT_SEC || "30",
     10,
   ),
+  addressRulesPath: process.env.ADDRESS_RULES_PATH || "address_rules.json",
+  valueRulesPath: process.env.VALUE_RULES_PATH || "value_rules.json",
+  contractRulesPath: process.env.CONTRACT_RULES_PATH || "contract_rules.json",
   metrics: {
     mode: process.env.METRICS_MODE || "stdout",
     batchSize: parseInt(process.env.METRICS_BATCH_SIZE || "100"),

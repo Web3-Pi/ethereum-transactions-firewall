@@ -1,4 +1,4 @@
-import { ValidationError, WebsocketTransactionValidator } from "./validator.js";
+import { ValidationError } from "./validator.js";
 import { WebSocketRequestSender } from "../websocket/request-sender.js";
 import {
   TransactionPayload,
@@ -6,6 +6,7 @@ import {
 } from "../transactions/transaction.js";
 import { instance, mock, when } from "ts-mockito";
 import { Logger } from "../utils/logger.js";
+import { WebsocketTransactionValidator } from "./websocket-validator.js";
 
 jest.mock("../websocket/request-sender.js", () => ({
   WebSocketRequestSender: jest.fn().mockImplementation(() => ({
@@ -22,8 +23,9 @@ describe("TransactionValidator", () => {
 
   const configMock = {
     wssPort: 18777,
-    logger: instance(mock<Logger>()),
   };
+
+  const loggerMock = mock<Logger>();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -31,7 +33,10 @@ describe("TransactionValidator", () => {
     when(txMock.dto).thenReturn({} as TransactionPayload);
     when(txMock.id).thenReturn("1");
     testTx = instance(txMock);
-    validator = new WebsocketTransactionValidator(configMock);
+    validator = new WebsocketTransactionValidator(
+      configMock,
+      instance(loggerMock),
+    );
     requestSenderMock = (WebSocketRequestSender as jest.Mock).mock.results[0]
       .value;
   });
