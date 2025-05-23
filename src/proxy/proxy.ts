@@ -13,6 +13,7 @@ export interface ProxyConfig {
   proxyPort: number;
   endpointUrl: string;
   logger: Logger;
+  mode: "interactive" | "non-interactive";
 }
 
 export class ValidatingProxy {
@@ -22,7 +23,7 @@ export class ValidatingProxy {
   private readonly endpointUrl: string;
 
   constructor(
-    config: ProxyConfig,
+    private config: ProxyConfig,
     private transactionValidator: TransactionValidator,
     private transactionBuilder: TransactionBuilder,
     private metricsCollector?: MetricsCollector,
@@ -36,6 +37,7 @@ export class ValidatingProxy {
 
   public async listen(): Promise<void> {
     await this.transactionBuilder.loadConfig();
+    await this.transactionValidator.init();
     await this.metricsCollector?.init();
     this.server.listen(this.proxyPort, () => {
       this.logger.info(
@@ -43,7 +45,7 @@ export class ValidatingProxy {
           "Proxy address (endpoint to be used in a wallet)": `http://${hostname}:${this.proxyPort}`,
           "Ethereum RPC endpoint used by the firewall": this.endpointUrl,
         },
-        `Validating Proxy is running`,
+        `Validating Proxy is running in ${this.config.mode} mode.`,
       );
     });
   }

@@ -36,6 +36,14 @@ export interface TransactionPayload {
   txType: TransactionType;
   data: string;
   contractInfo?: ContractInfo;
+  nonce?: string;
+  gasLimit?: string;
+  chainId?: string;
+  networkName?: string;
+  transactionType?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+  gasPrice?: string;
 }
 
 export interface UserDecision {

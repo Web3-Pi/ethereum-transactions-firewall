@@ -81,7 +81,6 @@ export class TransactionBuilder {
       const txData = toBuffer(req.params[0] as string);
       const baseTransaction = TransactionFactory.fromSerializedData(txData);
       const parsedData = this.getParsedData(baseTransaction);
-
       return new WrappedTransaction(
         baseTransaction,
         parsedData,
