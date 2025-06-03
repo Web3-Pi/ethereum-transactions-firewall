@@ -167,7 +167,7 @@ export function TransactionDialog({
                       transactionPayload.maxFeePerGas.toString(),
                       "gwei",
                     ),
-                  ) <
+                  ) >
                     Number(
                       formatUnits(
                         transactionPayload.avgFeePerGas?.toString() || "0",
