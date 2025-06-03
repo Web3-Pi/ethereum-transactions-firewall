@@ -71,7 +71,11 @@ export class TransactionBuilder {
     }
   }
 
-  public fromJsonRpcRequest(req: JsonRpcRequest): WrappedTransaction | null {
+  public fromJsonRpcRequest(
+    req: JsonRpcRequest,
+    avgGasPrice?: number,
+    avgFeePerGas?: number,
+  ): WrappedTransaction | null {
     if (req.method !== "eth_sendRawTransaction" || !req.params?.[0]) {
       return null;
     }
@@ -81,10 +85,13 @@ export class TransactionBuilder {
       const txData = toBuffer(req.params[0] as string);
       const baseTransaction = TransactionFactory.fromSerializedData(txData);
       const parsedData = this.getParsedData(baseTransaction);
+
       return new WrappedTransaction(
         baseTransaction,
         parsedData,
         req.id?.toString(),
+        avgGasPrice,
+        avgFeePerGas,
       );
     } catch (error) {
       throw new Error(`Failed to decode transaction. ${error}`);

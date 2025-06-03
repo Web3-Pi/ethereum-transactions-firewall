@@ -76,22 +76,31 @@ export class ValidatingProxy {
           | JsonRpcRequest;
         const transactions: WrappedTransaction[] = [];
 
+        const avgGasPrice = await this.metricsCollector?.getAvgGasPrice();
+        const avgFeePerGas = await this.metricsCollector?.getAvgFeePerGas();
+
         if (Array.isArray(parsedData)) {
           this.logger.debug(
             { batchSize: parsedData.length },
             `Batch RPC requests received`,
           );
           parsedData.forEach((rpcReq) => {
-            const transaction =
-              this.transactionBuilder.fromJsonRpcRequest(rpcReq);
+            const transaction = this.transactionBuilder.fromJsonRpcRequest(
+              rpcReq,
+              avgGasPrice || undefined,
+              avgFeePerGas || undefined,
+            );
             if (transaction) {
               transactions.push(transaction);
             }
           });
         } else {
           this.logger.debug({ rpcReq: parsedData }, `RPC request received`);
-          const transaction =
-            this.transactionBuilder.fromJsonRpcRequest(parsedData);
+          const transaction = this.transactionBuilder.fromJsonRpcRequest(
+            parsedData,
+            avgGasPrice || undefined,
+            avgFeePerGas || undefined,
+          );
           if (transaction) {
             transactions.push(transaction);
           }
