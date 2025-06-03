@@ -343,7 +343,6 @@ You should see a window:
 #### Gas price warning
 
 If the gas price (for legacy transactions) or fee per gas (for EIP-1559 transactions) is 10% higher than the average
-If the gas price (for legacy transactions) or fee per gas (for EIP-1559 transactions) is 10% higher than the average
 price calculated from the last 30 transactions, a warning about high gas price appears. This function only works if
 `METRIC_MODE` is not set to none.
 
