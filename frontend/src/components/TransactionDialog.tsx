@@ -161,6 +161,24 @@ export function TransactionDialog({
                   )}
                 </b>{" "}
                 Gwei
+                {transactionPayload.avgFeePerGas &&
+                  Number(
+                    formatUnits(
+                      transactionPayload.maxFeePerGas.toString(),
+                      "gwei",
+                    ),
+                  ) <
+                    Number(
+                      formatUnits(
+                        transactionPayload.avgFeePerGas?.toString() || "0",
+                        "gwei",
+                      ),
+                    ) *
+                      1.1 && (
+                    <span className="text-red-500 ml-2">
+                      Max fee per gas is high!
+                    </span>
+                  )}
               </div>
             </>
           )}
@@ -186,6 +204,21 @@ export function TransactionDialog({
                   {formatUnits(transactionPayload.gasPrice.toString(), "gwei")}
                 </b>{" "}
                 Gwei
+                {transactionPayload.avgGasPrice &&
+                  Number(
+                    formatUnits(transactionPayload.gasPrice.toString(), "gwei"),
+                  ) >
+                    Number(
+                      formatUnits(
+                        transactionPayload.avgGasPrice?.toString() || "0",
+                        "gwei",
+                      ),
+                    ) *
+                      1.1 && (
+                    <span className="text-red-500 ml-2">
+                      Gas price is high!
+                    </span>
+                  )}
               </div>
             </>
           )}

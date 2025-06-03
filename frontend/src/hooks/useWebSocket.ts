@@ -44,6 +44,8 @@ export interface TransactionPayload {
   maxFeePerGas?: string;
   maxPriorityFeePerGas?: string;
   gasPrice?: string;
+  avgGasPrice?: number;
+  avgFeePerGas?: number;
 }
 
 export interface UserDecision {

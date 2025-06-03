@@ -39,9 +39,14 @@ export interface TransactionPayload extends ParsedData {
   chainId?: string;
   networkName?: string;
   transactionType?: string;
+  // Legacy
+  gasPrice?: string;
+  // EIP-1559
   maxFeePerGas?: string;
   maxPriorityFeePerGas?: string;
-  gasPrice?: string;
+
+  avgGasPrice?: number;
+  avgFeePerGas?: number;
 }
 
 const NETWORK_NAMES: Record<number, string> = {
@@ -60,6 +65,8 @@ export class WrappedTransaction {
     public baseTransaction: TypedTransaction,
     private parsedData: ParsedData,
     public jsonRpcId?: string,
+    public avgGasPrice?: number,
+    public avgFeePerGas?: number,
   ) {
     this.id = bufferToHex(Buffer.from(baseTransaction.hash()));
   }
@@ -90,6 +97,8 @@ export class WrappedTransaction {
         "gasPrice" in this.baseTransaction
           ? this.baseTransaction.gasPrice.toString()
           : undefined,
+      avgGasPrice: this.avgGasPrice,
+      avgFeePerGas: this.avgFeePerGas,
       ...this.parsedData,
     };
   }
