@@ -8,15 +8,20 @@ import {
 } from "../transactions/transaction.js";
 import { Logger } from "../utils/logger.js";
 import nock from "nock";
-import { MetricsCollector } from "../metrics/metrics.js";
+import {
+  InMemoryMetricsCollector,
+  MetricsCollector,
+} from "../metrics/metrics.js";
 import { WebsocketTransactionValidator } from "./websocket-validator.js";
 
 describe("Proxy", () => {
   const transactionValidatorMock = mock(WebsocketTransactionValidator);
   const transactionBuilderMock = mock(TransactionBuilder);
   const transactionMock = mock(WrappedTransaction);
-  const metricsCollectorMock = mock(MetricsCollector);
+  const metricsCollectorMock = mock<MetricsCollector>(InMemoryMetricsCollector);
   when(transactionMock.dto).thenReturn({} as TransactionPayload);
+  when(metricsCollectorMock.getAvgGasPrice()).thenResolve(null);
+  when(metricsCollectorMock.getAvgFeePerGas()).thenResolve(null);
   const configMock = {
     proxyPort: 18555,
     endpointUrl: "http://localhost:8545/",
@@ -85,9 +90,13 @@ describe("Proxy", () => {
   });
 
   test("should get a response with error for call with proper transaction and incorrect validation", async () => {
-    when(transactionBuilderMock.fromJsonRpcRequest(anything())).thenReturn(
-      transactionMock,
-    );
+    when(
+      transactionBuilderMock.fromJsonRpcRequest(
+        anything(),
+        anything(),
+        anything(),
+      ),
+    ).thenReturn(transactionMock);
     when(transactionValidatorMock.validate(anything())).thenReject(
       new ValidationError("Rejected by user", transactionMock.dto),
     );
@@ -105,9 +114,13 @@ describe("Proxy", () => {
   });
 
   test("should get a response with error for call with invalid transaction", async () => {
-    when(transactionBuilderMock.fromJsonRpcRequest(anything())).thenThrow(
-      new Error("Invalid transaction decoding"),
-    );
+    when(
+      transactionBuilderMock.fromJsonRpcRequest(
+        anything(),
+        anything(),
+        anything(),
+      ),
+    ).thenThrow(new Error("Invalid transaction decoding"));
     when(transactionValidatorMock.validate(anything())).thenResolve(true);
     const response = await rpcRequest();
     expect(response.status).toBe(200);
@@ -128,9 +141,13 @@ describe("Proxy", () => {
   });
 
   test("should process batch of rpc requests", async () => {
-    when(transactionBuilderMock.fromJsonRpcRequest(anything())).thenReturn(
-      transactionMock,
-    );
+    when(
+      transactionBuilderMock.fromJsonRpcRequest(
+        anything(),
+        anything(),
+        anything(),
+      ),
+    ).thenReturn(transactionMock);
     when(transactionValidatorMock.validate(anything())).thenResolve(true);
     const response = await rpcRequest("POST", [
       { jsonrpc: "2.0", id: 1 },
