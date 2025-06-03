@@ -340,6 +340,15 @@ You should see a window:
 #### Accepting contract transaction
 <img src="./doc/tx-contract.png" alt="Firewall app" width="700">
 
+#### Gas price warning
+
+If the gas price (for legacy transactions) or fee per gas (for EIP-1559 transactions) is 10% higher than the average
+If the gas price (for legacy transactions) or fee per gas (for EIP-1559 transactions) is 10% higher than the average
+price calculated from the last 30 transactions, a warning about high gas price appears. This function only works if
+`METRIC_MODE` is not set to none.
+
+<img src="./doc/tx-gas-price-warn.png" alt="Firewall app" width="700">
+
 ## Regular use
 
 This project is a firewall between the wallet and the RPC endpoint (Ethereum mainnet only). Change the configured RPC endpoint to the proxy address to enable it in your wallet of choice.
