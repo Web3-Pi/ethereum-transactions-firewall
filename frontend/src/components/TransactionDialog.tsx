@@ -52,13 +52,65 @@ export function TransactionDialog({
     };
   }, [onReject, timeout]);
 
+  const safeToBigInt = (
+    value: string | number | bigint | null | undefined,
+  ): bigint => {
+    if (value === null || value === undefined) return BigInt(0);
+
+    const stringValue = value.toString();
+
+    if (stringValue.includes(".")) {
+      const integerPart = stringValue.split(".")[0];
+      return BigInt(integerPart || "0");
+    }
+
+    try {
+      return BigInt(stringValue);
+    } catch (error) {
+      console.warn(`Cannot convert ${stringValue} to BigInt, using 0`);
+      return BigInt(0);
+    }
+  };
+
+  const safeFormatEther = (
+    value: string | number | bigint | null | undefined,
+  ): string => {
+    try {
+      const stringValue = value?.toString() || "0";
+      if (stringValue.includes(".")) {
+        return parseFloat(stringValue).toFixed(6);
+      }
+
+      const bigIntValue = safeToBigInt(value);
+      return formatEther(bigIntValue);
+    } catch (error) {
+      console.warn(`Error formatting ether value: ${value}`, error);
+      return value?.toString() || "0";
+    }
+  };
+
+  const safeFormatUnits = (
+    value: string | number | bigint | null | undefined,
+    unit: string,
+  ): string => {
+    try {
+      const bigIntValue = safeToBigInt(value);
+      return formatUnits(bigIntValue, unit);
+    } catch (error) {
+      console.warn(`Error formatting units: ${value}`, error);
+      return value?.toString() || "0";
+    }
+  };
+
   const formatArgValue = (arg: {
     value: string;
     type: string;
     label?: string;
   }) => {
     if (arg.value === null) return "Unknown";
-    if (arg.type === "uint256") return formatEther(arg.value);
+    if (arg.type === "uint256") {
+      return safeFormatEther(arg.value);
+    }
     if (arg.type === "address")
       return (
         <>
@@ -129,7 +181,7 @@ export function TransactionDialog({
           </div>
           <div className="font-semibold">Value:</div>
           <div>
-            <b>{formatEther(transactionPayload.value)}</b> ETH
+            <b>{safeFormatEther(transactionPayload.value)}</b> ETH
           </div>
           <div className="font-semibold">Network:</div>
           <div>
@@ -155,24 +207,15 @@ export function TransactionDialog({
               <div className="font-semibold">Max Fee Per Gas:</div>
               <div>
                 <b>
-                  {formatUnits(
-                    transactionPayload.maxFeePerGas.toString(),
-                    "gwei",
-                  )}
+                  {safeFormatUnits(transactionPayload.maxFeePerGas, "gwei")}
                 </b>{" "}
                 Gwei
                 {transactionPayload.avgFeePerGas &&
                   Number(
-                    formatUnits(
-                      transactionPayload.maxFeePerGas.toString(),
-                      "gwei",
-                    ),
+                    safeFormatUnits(transactionPayload.maxFeePerGas, "gwei"),
                   ) >
                     Number(
-                      formatUnits(
-                        transactionPayload.avgFeePerGas?.toString() || "0",
-                        "gwei",
-                      ),
+                      safeFormatUnits(transactionPayload.avgFeePerGas, "gwei"),
                     ) *
                       1.1 && (
                     <span className="text-red-500 ml-2">
@@ -187,8 +230,8 @@ export function TransactionDialog({
               <div className="font-semibold">Max Priority Fee:</div>
               <div>
                 <b>
-                  {formatUnits(
-                    transactionPayload.maxPriorityFeePerGas.toString(),
+                  {safeFormatUnits(
+                    transactionPayload.maxPriorityFeePerGas,
                     "gwei",
                   )}
                 </b>{" "}
@@ -200,19 +243,12 @@ export function TransactionDialog({
             <>
               <div className="font-semibold">Gas Price:</div>
               <div>
-                <b>
-                  {formatUnits(transactionPayload.gasPrice.toString(), "gwei")}
-                </b>{" "}
+                <b>{safeFormatUnits(transactionPayload.gasPrice, "gwei")}</b>{" "}
                 Gwei
                 {transactionPayload.avgGasPrice &&
-                  Number(
-                    formatUnits(transactionPayload.gasPrice.toString(), "gwei"),
-                  ) >
+                  Number(safeFormatUnits(transactionPayload.gasPrice, "gwei")) >
                     Number(
-                      formatUnits(
-                        transactionPayload.avgGasPrice?.toString() || "0",
-                        "gwei",
-                      ),
+                      safeFormatUnits(transactionPayload.avgGasPrice, "gwei"),
                     ) *
                       1.1 && (
                     <span className="text-red-500 ml-2">
